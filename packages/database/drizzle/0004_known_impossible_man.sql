@@ -1,0 +1,1 @@
+ALTER TABLE "forms" ADD COLUMN "theme_name" varchar(50) DEFAULT 'wano' NOT NULL;

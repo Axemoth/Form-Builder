@@ -14,6 +14,7 @@ node_modules
 
 # Testing
 coverage
+coverage/
 
 # Turbo
 .turbo
@@ -26,13 +27,26 @@ coverage
 out/
 build
 dist
+dist/
 
+# Runtime / generated local artifacts
+tmp/
+**/tmp/
+test-emails/
+**/test-emails/
 
 # Debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+*.log
 
 # Misc
 .DS_Store
+Thumbs.db
 *.pem
+
+# Plans & Guides
+IMPLEMENTATION_PLAN.md
+WALKTHROUGH.md
