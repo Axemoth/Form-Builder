@@ -234,35 +234,35 @@ export default function FormSettingsPage() {
               className="flex items-center gap-2.5 px-4 py-3 justify-start rounded-xl text-xs font-semibold font-heading text-wano-cream/60 hover:text-wano-cream hover:bg-ocean-surface/30 data-[state=active]:bg-wano-gold/15 data-[state=active]:text-wano-gold dark:text-wano-cream/60 dark:hover:text-wano-cream dark:data-[state=active]:text-wano-gold w-full text-left transition-all duration-200"
             >
               <Settings2 className="w-4 h-4 shrink-0" />
-              General Logistics
+              General Settings
             </TabsTrigger>
             <TabsTrigger
               value="security"
               className="flex items-center gap-2.5 px-4 py-3 justify-start rounded-xl text-xs font-semibold font-heading text-wano-cream/60 hover:text-wano-cream hover:bg-ocean-surface/30 data-[state=active]:bg-wano-gold/15 data-[state=active]:text-wano-gold dark:text-wano-cream/60 dark:hover:text-wano-cream dark:data-[state=active]:text-wano-gold w-full text-left transition-all duration-200"
             >
               <Shield className="w-4 h-4 shrink-0" />
-              Haki Access Guard
+              Security & Access
             </TabsTrigger>
             <TabsTrigger
               value="limits"
               className="flex items-center gap-2.5 px-4 py-3 justify-start rounded-xl text-xs font-semibold font-heading text-wano-cream/60 hover:text-wano-cream hover:bg-ocean-surface/30 data-[state=active]:bg-wano-gold/15 data-[state=active]:text-wano-gold dark:text-wano-cream/60 dark:hover:text-wano-cream dark:data-[state=active]:text-wano-gold w-full text-left transition-all duration-200"
             >
               <Clock className="w-4 h-4 shrink-0" />
-              Log Pose Expiration
+              Limits & Expiry
             </TabsTrigger>
             <TabsTrigger
               value="notifications"
               className="flex items-center gap-2.5 px-4 py-3 justify-start rounded-xl text-xs font-semibold font-heading text-wano-cream/60 hover:text-wano-cream hover:bg-ocean-surface/30 data-[state=active]:bg-wano-gold/15 data-[state=active]:text-wano-gold dark:text-wano-cream/60 dark:hover:text-wano-cream dark:data-[state=active]:text-wano-gold w-full text-left transition-all duration-200"
             >
               <Bell className="w-4 h-4 shrink-0" />
-              Messenger Birds
+              Notifications
             </TabsTrigger>
             <TabsTrigger
               value="sharing"
               className="flex items-center gap-2.5 px-4 py-3 justify-start rounded-xl text-xs font-semibold font-heading text-wano-cream/60 hover:text-wano-cream hover:bg-ocean-surface/30 data-[state=active]:bg-wano-gold/15 data-[state=active]:text-wano-gold dark:text-wano-cream/60 dark:hover:text-wano-cream dark:data-[state=active]:text-wano-gold w-full text-left transition-all duration-200"
             >
               <QrCode className="w-4 h-4 shrink-0" />
-              Bounty Map Sharing
+              Share & Embed
             </TabsTrigger>
           </TabsList>
 
@@ -276,7 +276,7 @@ export default function FormSettingsPage() {
               <div className="border-b border-ocean-surface/20 pb-3 mb-2">
                 <h3 className="font-heading text-lg font-bold text-wano-cream flex items-center gap-2">
                   <Settings2 className="w-5 h-5 text-wano-gold" />
-                  General Logistics
+                  General Settings
                 </h3>
                 <p className="text-[11px] text-wano-cream/45">
                   Setup your core island parameters and communication logs.
@@ -286,7 +286,7 @@ export default function FormSettingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-1.5 col-span-2">
                   <Label className="text-[10px] uppercase tracking-wider text-wano-cream/60 font-semibold font-heading">
-                    Island Course (Title) <span className="text-wano-crimson">*</span>
+                    Title <span className="text-wano-crimson">*</span>
                   </Label>
                   <Input
                     value={title}
@@ -297,7 +297,7 @@ export default function FormSettingsPage() {
 
                 <div className="space-y-1.5 col-span-2">
                   <Label className="text-[10px] uppercase tracking-wider text-wano-cream/60 font-semibold font-heading">
-                    Voyage Description (Log entry description)
+                    Description
                   </Label>
                   <Textarea
                     value={description}
@@ -308,7 +308,7 @@ export default function FormSettingsPage() {
 
                 <div className="space-y-1.5">
                   <Label className="text-[10px] uppercase tracking-wider text-wano-cream/60 font-semibold font-heading">
-                    Grand Line Coordinates (Slug path) <span className="text-wano-crimson">*</span>
+                    Slug Path <span className="text-wano-crimson">*</span>
                   </Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-wano-cream/30 font-mono">
@@ -324,7 +324,7 @@ export default function FormSettingsPage() {
 
                 <div className="space-y-1.5">
                   <Label className="text-[10px] uppercase tracking-wider text-wano-cream/60 font-semibold font-heading">
-                    Set Sail Status (Form Status)
+                    Form Status
                   </Label>
                   <Select value={status} onValueChange={setStatus}>
                     <SelectTrigger className="bg-ocean-deep/60 border-ocean-surface text-wano-cream rounded-xl text-xs focus:ring-0">
@@ -346,7 +346,7 @@ export default function FormSettingsPage() {
 
                 <div className="space-y-1.5">
                   <Label className="text-[10px] uppercase tracking-wider text-wano-cream/60 font-semibold font-heading">
-                    Treasure Action Text (Submit Button Text)
+                    Submit Button Text
                   </Label>
                   <Input
                     value={submitButtonText}
@@ -357,7 +357,7 @@ export default function FormSettingsPage() {
 
                 <div className="space-y-1.5 col-span-2">
                   <Label className="text-[10px] uppercase tracking-wider text-wano-cream/60 font-semibold font-heading">
-                    Success Chest message (Success message displayed after submit)
+                    Success Message
                   </Label>
                   <Textarea
                     value={successMessage}
@@ -369,7 +369,7 @@ export default function FormSettingsPage() {
 
                 <div className="space-y-1.5 col-span-2">
                   <Label className="text-[10px] uppercase tracking-wider text-wano-cream/60 font-semibold font-heading">
-                    Redirect ship (Optional redirect URL after submission)
+                    Redirect URL
                   </Label>
                   <Input
                     value={redirectUrl}
@@ -506,7 +506,7 @@ export default function FormSettingsPage() {
               <div className="border-b border-ocean-surface/20 pb-3 mb-2">
                 <h3 className="font-heading text-lg font-bold text-wano-cream flex items-center gap-2">
                   <Shield className="w-5 h-5 text-wano-gold" />
-                  Haki Access Guard
+                  Security & Access
                 </h3>
                 <p className="text-[11px] text-wano-cream/45">
                   Apply Conqueror's Haki shields to password lock or isolate respondents.
@@ -546,7 +546,7 @@ export default function FormSettingsPage() {
                   <div className="space-y-1">
                     <div className="text-xs font-bold text-wano-cream flex items-center gap-1.5 font-heading">
                       <Mail className="w-3.5 h-3.5 text-wano-gold" />
-                      Require Log Email (Identity verification)
+                      Require Email
                     </div>
                     <div className="text-[10px] text-wano-cream/40 leading-relaxed">
                       Respondents must declare their email address in order to file answers.
@@ -560,7 +560,7 @@ export default function FormSettingsPage() {
                   <div className="space-y-1">
                     <div className="text-xs font-bold text-wano-cream flex items-center gap-1.5 font-heading">
                       <Compass className="w-3.5 h-3.5 text-wano-gold" />
-                      Allow Repeated Voyages (Multiple entries)
+                      Allow Multiple Responses
                     </div>
                     <div className="text-[10px] text-wano-cream/40 leading-relaxed">
                       Let the same ship file multiple survey responses. Turn off to restrict
@@ -576,7 +576,7 @@ export default function FormSettingsPage() {
                     <div className="space-y-1">
                       <div className="text-xs font-bold text-wano-cream flex items-center gap-1.5 font-heading">
                         <Lock className="w-3.5 h-3.5 text-wano-gold" />
-                        Conqueror's Haki Lock (Password protection)
+                        Password Protection
                       </div>
                       <div className="text-[10px] text-wano-cream/40 leading-relaxed">
                         Respondents must unlock the island barrier using a passcode before answering
@@ -589,7 +589,7 @@ export default function FormSettingsPage() {
                   {isPasswordEnabled && (
                     <div className="space-y-1.5 animate-fadeIn">
                       <Label className="text-[9px] uppercase tracking-wider text-wano-cream/60 font-semibold font-heading">
-                        Passphrase Gate lock
+                        Password
                       </Label>
                       <Input
                         type="password"
@@ -609,7 +609,7 @@ export default function FormSettingsPage() {
               <div className="border-b border-ocean-surface/20 pb-3 mb-2">
                 <h3 className="font-heading text-lg font-bold text-wano-cream flex items-center gap-2">
                   <Clock className="w-5 h-5 text-wano-gold" />
-                  Log Pose Expiration
+                  Limits & Expiry
                 </h3>
                 <p className="text-[11px] text-wano-cream/45">
                   Set expiration thresholds or response caps before the island sinks.
@@ -623,7 +623,7 @@ export default function FormSettingsPage() {
                     <div className="space-y-1">
                       <div className="text-xs font-bold text-wano-cream flex items-center gap-1.5 font-heading">
                         <Clock className="w-3.5 h-3.5 text-wano-gold" />
-                        Voyage Expiry Gate (Expiration date)
+                        Expiration Date
                       </div>
                       <div className="text-[10px] text-wano-cream/40 leading-relaxed">
                         Specify a strict expiration limit when the form will auto-close and refuse
@@ -636,7 +636,7 @@ export default function FormSettingsPage() {
                   {isExpiryEnabled && (
                     <div className="space-y-1.5 animate-fadeIn">
                       <Label className="text-[9px] uppercase tracking-wider text-wano-cream/60 font-semibold font-heading">
-                        Expiration Coordinates (Date)
+                        Date
                       </Label>
                       <Input
                         type="date"
@@ -654,7 +654,7 @@ export default function FormSettingsPage() {
                     <div className="space-y-1">
                       <div className="text-xs font-bold text-wano-cream flex items-center gap-1.5 font-heading">
                         <Compass className="w-3.5 h-3.5 text-wano-gold" />
-                        Cargo Bounty Cap (Response Count Limit)
+                        Response Count Limit
                       </div>
                       <div className="text-[10px] text-wano-cream/40 leading-relaxed">
                         Max submission threshold. Submissions shut off once this number is met.
@@ -669,7 +669,7 @@ export default function FormSettingsPage() {
                   {isResponseLimitEnabled && (
                     <div className="space-y-1.5 animate-fadeIn">
                       <Label className="text-[9px] uppercase tracking-wider text-wano-cream/60 font-semibold font-heading">
-                        Maximum Answers Allowed (Cap count)
+                        Response Cap
                       </Label>
                       <Input
                         type="number"
@@ -691,7 +691,7 @@ export default function FormSettingsPage() {
               <div className="border-b border-ocean-surface/20 pb-3 mb-2">
                 <h3 className="font-heading text-lg font-bold text-wano-cream flex items-center gap-2">
                   <Bell className="w-5 h-5 text-wano-gold" />
-                  Messenger Birds
+                  Notifications
                 </h3>
                 <p className="text-[11px] text-wano-cream/45">
                   Configure News Coos to dispatch email scrolls dynamically on answer logs.
@@ -704,7 +704,7 @@ export default function FormSettingsPage() {
                   <div className="space-y-1 pr-4">
                     <div className="text-xs font-bold text-wano-cream flex items-center gap-1.5 font-heading">
                       <Bell className="w-3.5 h-3.5 text-wano-gold" />
-                      Notify Captain (Creator notification)
+                      Creator Notification
                     </div>
                     <div className="text-[10px] text-wano-cream/40 leading-relaxed">
                       News Coo bird flies directly to your inbox (`
@@ -720,7 +720,7 @@ export default function FormSettingsPage() {
                   <div className="space-y-1 pr-4">
                     <div className="text-xs font-bold text-wano-cream flex items-center gap-1.5 font-heading">
                       <Mail className="w-3.5 h-3.5 text-wano-gold" />
-                      Confirmation Scroll (Respondent notification)
+                      Respondent Notification
                     </div>
                     <div className="text-[10px] text-wano-cream/40 leading-relaxed">
                       Send a thank-you confirmation email with a copy of answered coordinates back
@@ -737,7 +737,7 @@ export default function FormSettingsPage() {
               <div className="border-b border-ocean-surface/20 pb-3 mb-2">
                 <h3 className="font-heading text-lg font-bold text-wano-cream flex items-center gap-2">
                   <QrCode className="w-5 h-5 text-wano-gold" />
-                  Bounty Map Sharing
+                  Share & Embed
                 </h3>
                 <p className="text-[11px] text-wano-cream/45">
                   Expose your island coordinates or generate interactive QR codes for pirates.
@@ -772,7 +772,7 @@ export default function FormSettingsPage() {
                 <div className="md:col-span-8 space-y-4">
                   <div className="space-y-1.5">
                     <Label className="text-[9px] uppercase tracking-wider text-wano-cream/60 font-semibold font-heading">
-                      Voyage Link (Survey URL)
+                      Survey URL
                     </Label>
                     <div className="flex gap-2">
                       <Input
@@ -791,7 +791,7 @@ export default function FormSettingsPage() {
 
                   <div className="space-y-1.5">
                     <Label className="text-[9px] uppercase tracking-wider text-wano-cream/60 font-semibold font-heading">
-                      Embed Scroll (iFrame Embed code)
+                      iFrame Embed Code
                     </Label>
                     <Textarea
                       readOnly

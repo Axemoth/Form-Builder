@@ -11,10 +11,11 @@ const nextConfig = {
     ],
   },
   async rewrites() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     return [
       {
         source: '/trpc/:path*',
-        destination: 'http://localhost:8000/trpc/:path*',
+        destination: `${apiUrl}/trpc/:path*`,
       },
     ];
   },
