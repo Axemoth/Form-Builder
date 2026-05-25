@@ -142,7 +142,7 @@ export function FormCard({ form, responseCount = 0 }: FormCardProps) {
                     className="flex items-center gap-2 text-xs cursor-pointer"
                   >
                     <PenTool className="w-4 h-4 text-wano-gold" />
-                    Edit Island (Fields)
+                    Edit (Edit Island)
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -151,7 +151,7 @@ export function FormCard({ form, responseCount = 0 }: FormCardProps) {
                     className="flex items-center gap-2 text-xs cursor-pointer"
                   >
                     <Settings className="w-4 h-4 text-wano-sakura" />
-                    Ship Settings
+                    Settings (Ship Settings)
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -160,7 +160,7 @@ export function FormCard({ form, responseCount = 0 }: FormCardProps) {
                     className="flex items-center gap-2 text-xs cursor-pointer"
                   >
                     <Anchor className="w-4 h-4 text-fruit-glow" />
-                    Treasures (Responses)
+                    Responses (Treasures)
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -169,7 +169,7 @@ export function FormCard({ form, responseCount = 0 }: FormCardProps) {
                     className="flex items-center gap-2 text-xs cursor-pointer"
                   >
                     <BarChart3 className="w-4 h-4 text-gradient-crimson" />
-                    Log Pose (Analytics)
+                    Analytics (Log Pose)
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-ocean-surface/50" />
@@ -180,7 +180,7 @@ export function FormCard({ form, responseCount = 0 }: FormCardProps) {
                     className="flex items-center gap-2 text-xs cursor-pointer"
                   >
                     <Eye className="w-4 h-4 text-wano-cream/70" />
-                    Visit Island
+                    Visit (Visit Island)
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-ocean-surface/50" />
@@ -190,7 +190,7 @@ export function FormCard({ form, responseCount = 0 }: FormCardProps) {
                   disabled={cloneMutation.isPending}
                 >
                   <Copy className="w-4 h-4 text-wano-gold" />
-                  Clone Island
+                  Clone (Clone Island)
                 </DropdownMenuItem>
                 {!form.isArchived && (
                   <>
