@@ -32,6 +32,7 @@ jobs:
           pnpm install
           pnpm build --filter=@repo/api
           pnpm test --if-present
+          pnpm prune --prod
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
