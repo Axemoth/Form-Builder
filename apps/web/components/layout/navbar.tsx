@@ -4,6 +4,14 @@ import { useState, useEffect } from "react";
 import { Bell, Compass, HelpCircle, Plus, Search, User } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { SidebarTrigger } from "~/components/ui/sidebar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
 
 interface NavbarProps {
   onCreateFormClick?: () => void;
@@ -56,14 +64,107 @@ export function Navbar({ onCreateFormClick }: NavbarProps) {
           </Button>
         )}
 
-        {/* Help / Guide */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-wano-cream/70 hover:text-wano-gold hover:bg-ocean-surface/50 rounded-lg"
-        >
-          <HelpCircle className="w-5 h-5" />
-        </Button>
+        {/* Help / Guide Dialog */}
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-wano-cream/70 hover:text-wano-gold hover:bg-ocean-surface/50 rounded-lg cursor-pointer"
+            >
+              <HelpCircle className="w-5 h-5" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="glass-panel border-wano-gold/30 bg-ocean-deep/95 text-wano-cream p-6 rounded-2xl max-w-md shadow-2xl">
+            <DialogHeader className="border-b border-ocean-surface/30 pb-3">
+              <DialogTitle className="font-heading text-lg font-bold text-wano-gold uppercase tracking-wider flex items-center gap-2">
+                🧭 Compass Guide: How AxeForm Works
+              </DialogTitle>
+              <DialogDescription className="text-xs text-wano-cream/55 mt-1 leading-relaxed">
+                Learn how to chart, publish, and collect responses on your Grand Line survey voyages.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 pt-3 text-xs leading-relaxed max-h-[400px] overflow-y-auto axe-scrollbar pr-1">
+              <div className="space-y-1">
+                <h4 className="font-bold text-wano-cream flex items-center gap-1.5 text-xs font-heading">
+                  📋 1. What are Forms?
+                </h4>
+                <p className="text-wano-cream/70 text-[11px] leading-relaxed pl-5">
+                  Forms are your customized surveys. You build them by adding different fields (questions) like text boxes, check lists, emails, or star ratings to collect information from other pirates.
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <h4 className="font-bold text-wano-cream flex items-center gap-1.5 text-xs font-heading">
+                  ✨ 2. Form States (Set Sail or Anchor)
+                </h4>
+                <div className="space-y-2 pl-5 pt-1">
+                  <div className="bg-ocean-mid/40 p-2.5 rounded-xl border border-fruit-glow/20">
+                    <span className="font-bold text-fruit-glow text-[10px] uppercase font-mono block">
+                      Published (Setting Sail)
+                    </span>
+                    <p className="text-[10px] text-wano-cream/65 mt-0.5 leading-relaxed">
+                      Your form is fully live! Anyone with the direct survey link can open it and submit responses.
+                    </p>
+                  </div>
+
+                  <div className="bg-ocean-mid/40 p-2.5 rounded-xl border border-wano-crimson/20">
+                    <span className="font-bold text-wano-crimson text-[10px] uppercase font-mono block">
+                      Unpublished (Anchored)
+                    </span>
+                    <p className="text-[10px] text-wano-cream/65 mt-0.5 leading-relaxed">
+                      Your form is temporarily closed. The direct link is offline, and new responses are blocked, but all previously submitted responses are safely preserved.
+                    </p>
+                  </div>
+
+                  <div className="bg-ocean-mid/40 p-2.5 rounded-xl border border-wano-cream/20">
+                    <span className="font-bold text-wano-cream/60 text-[10px] uppercase font-mono block">
+                      Draft (Parchment Locked)
+                    </span>
+                    <p className="text-[10px] text-wano-cream/65 mt-0.5 leading-relaxed">
+                      A private copy for you to safely build and edit questions. It is hidden from the public until you decide to publish it.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <h4 className="font-bold text-wano-cream flex items-center gap-1.5 text-xs font-heading">
+                  ⚙️ 3. Advanced Customizations & Logistics
+                </h4>
+                <div className="text-wano-cream/70 text-[11px] leading-relaxed pl-5 space-y-1.5">
+                  <p>
+                    Make your forms truly premium under the <strong className="text-wano-gold">Ship Settings</strong> tab:
+                  </p>
+                  <ul className="list-disc pl-4 space-y-1.5 text-[10.5px]">
+                    <li>
+                      <strong className="text-wano-cream/90">Aesthetic Themes:</strong> Style your forms with custom layouts like sakura blossom calligraphies (<strong>Wano country</strong>), sci-fi data hud layers (<strong>Stark Tech</strong>), or tactical bat-signal spotlights (<strong>Gotham Knight</strong>).
+                    </li>
+                    <li>
+                      <strong className="text-wano-cream/90">Haki Access Shields:</strong> Set up secure email verifications, password gates, or restrict repeated submissions to limit access.
+                    </li>
+                    <li>
+                      <strong className="text-wano-cream/90">Limits & Expirations:</strong> Select expiration date caps or restrict the maximum response limit cargo before the form anchors.
+                    </li>
+                    <li>
+                      <strong className="text-wano-cream/90">Messenger Birds:</strong> Enable email scrolls to dispatch instant notifications to your inbox when responses are logged.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <h4 className="font-bold text-wano-cream flex items-center gap-1.5 text-xs font-heading">
+                  🏆 4. What are Responses?
+                </h4>
+                <p className="text-wano-cream/70 text-[11px] leading-relaxed pl-5">
+                  Every time a respondent fills out and submits your live form, it is recorded as a <strong className="text-fruit-glow">Response</strong> (your captured treasure). You can view the full responses log in the <strong className="text-wano-gold">"Treasures Collected"</strong> tab, or see beautiful visual trend charts under the <strong className="text-wano-sakura">"Sea Charts" (Analytics)</strong> tab of your form workspace cabin.
+                </p>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Notifications (Den Den Mushi style) */}
         <Button

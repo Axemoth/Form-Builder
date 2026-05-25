@@ -16,6 +16,7 @@ import {
   emailNotifications,
   emailLogs,
   users,
+  formCollaborators,
 } from "@repo/database/schema";
 import { TRPCError } from "@trpc/server";
 import crypto from "crypto";
@@ -232,7 +233,7 @@ export const formRouter = router({
         description: z.string().optional().describe("Updated description"),
         slug: z.string().optional().describe("Custom form slug"),
         status: z.enum(["draft", "published", "unpublished"]).optional().describe("Form status"),
-        visibility: z.enum(["public", "unlisted"]).describe("Form visibility mode"),
+        visibility: z.enum(["public", "unlisted"]).optional().describe("Form visibility mode"),
         submitButtonText: z.string().optional().describe("Custom submit text"),
         successMessage: z.string().optional().describe("Custom submission success message"),
         redirectUrl: z.string().optional().describe("Optional redirect link after submission"),
@@ -559,11 +560,18 @@ export const formRouter = router({
         .where(eq(emailNotifications.formId, form.id));
       const notifyRespondent = notifSettings?.notifyRespondent ?? false;
 
-      // Check draft / preview permissions
+      // Check draft / preview / unpublished permissions
       if (form.status === "draft" && !input.isPreview) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "Form is currently a draft and is not public yet",
+        });
+      }
+
+      if (form.status === "unpublished" && !input.isPreview) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Form is currently unpublished and is closed to submissions",
         });
       }
 
@@ -777,7 +785,7 @@ export const formRouter = router({
         message: z.string(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const [form] = await db.select().from(forms).where(eq(forms.id, input.formId));
       if (!form) {
         throw new TRPCError({
@@ -791,6 +799,13 @@ export const formRouter = router({
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Form submissions are disabled in draft preview status",
+        });
+      }
+
+      if (form.status === "unpublished") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Submissions rejected: this form is currently unpublished",
         });
       }
 
@@ -830,6 +845,42 @@ export const formRouter = router({
           throw new TRPCError({
             code: "BAD_REQUEST",
             message: "Submissions rejected: response limit cap has been reached",
+          });
+        }
+      }
+
+      // Secure backend IP Hashing (Audit Item 2)
+      const xForwardedFor = ctx.req.headers["x-forwarded-for"];
+      const clientIp = Array.isArray(xForwardedFor)
+        ? xForwardedFor[0]
+        : typeof xForwardedFor === "string"
+          ? xForwardedFor.split(",")[0]?.trim()
+          : ctx.req.socket.remoteAddress || "unknown-ip";
+      
+      const secureIpHash = crypto.createHash("sha256").update(clientIp || "").digest("hex");
+
+      // Enforce allowMultipleResponses Check (Audit Item 1)
+      if (!form.allowMultipleResponses) {
+        const existingConditions = [eq(responses.formId, form.id)];
+        
+        if (form.requireEmail && input.respondentEmail) {
+          existingConditions.push(eq(responses.respondentEmail, input.respondentEmail));
+        } else {
+          // Fall back to secure IP hash check
+          existingConditions.push(eq(responseMetadata.ipHash, secureIpHash));
+        }
+
+        const duplicateCheck = await db
+          .select()
+          .from(responses)
+          .leftJoin(responseMetadata, eq(responses.id, responseMetadata.responseId))
+          .where(and(...existingConditions))
+          .limit(1);
+
+        if (duplicateCheck.length > 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Submissions rejected: You have already submitted a response for this form.",
           });
         }
       }
@@ -1052,7 +1103,7 @@ export const formRouter = router({
 
       await db.insert(responseMetadata).values({
         responseId: newResponse.id,
-        ipHash: input.metadata.ipHash,
+        ipHash: secureIpHash,
         userAgent: input.metadata.userAgent || null,
         country: input.metadata.country || null,
         completionTime: input.metadata.completionTime || null,
@@ -1597,7 +1648,35 @@ export const formRouter = router({
     )
     .query(async () => {
       // Retrieve themes
-      const dbThemes = await db.select().from(formThemes);
+      let dbThemes = await db.select().from(formThemes);
+
+      if (dbThemes.length === 0) {
+        // Seed default themes
+        await db.insert(formThemes).values([
+          {
+            name: "wano",
+            primaryColor: "#C9A84C",
+            backgroundColor: "#0A1628",
+            fontFamily: "Noto Serif JP",
+            isDefault: true,
+          },
+          {
+            name: "stark",
+            primaryColor: "#00f0ff",
+            backgroundColor: "#070b13",
+            fontFamily: "Courier New",
+            isDefault: false,
+          },
+          {
+            name: "batman",
+            primaryColor: "#F5B921",
+            backgroundColor: "#0B0C10",
+            fontFamily: "Segoe UI",
+            isDefault: false,
+          },
+        ]);
+        dbThemes = await db.select().from(formThemes);
+      }
 
       // Default fallback templates
       const defaultTemplates = [
@@ -2139,5 +2218,78 @@ export const formRouter = router({
         slug: clonedSlug,
         message: "Form cloned successfully",
       };
+    }),
+
+  getFormCollaborators: protectedProcedure
+    .input(z.object({ formId: z.string().uuid() }))
+    .query(async ({ input, ctx }) => {
+      const [form] = await db.select().from(forms).where(eq(forms.id, input.formId));
+      if (!form) throw new TRPCError({ code: "NOT_FOUND", message: "Form not found" });
+      if (form.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN", message: "Forbidden" });
+
+      return db
+        .select({
+          id: formCollaborators.id,
+          role: formCollaborators.role,
+          invitedAt: formCollaborators.invitedAt,
+          user: {
+            id: users.id,
+            name: users.name,
+            email: users.email,
+            avatar: users.avatar,
+          },
+        })
+        .from(formCollaborators)
+        .innerJoin(users, eq(formCollaborators.userId, users.id))
+        .where(eq(formCollaborators.formId, input.formId));
+    }),
+
+  addFormCollaborator: protectedProcedure
+    .input(
+      z.object({
+        formId: z.string().uuid(),
+        email: z.string().email(),
+        role: z.enum(["viewer", "editor"]),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const [form] = await db.select().from(forms).where(eq(forms.id, input.formId));
+      if (!form) throw new TRPCError({ code: "NOT_FOUND", message: "Form not found" });
+      if (form.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN", message: "Forbidden" });
+
+      const [invitedUser] = await db.select().from(users).where(eq(users.email, input.email));
+      if (!invitedUser) throw new TRPCError({ code: "NOT_FOUND", message: "User not found with this email" });
+
+      if (invitedUser.id === ctx.user.id) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "You cannot add yourself as a collaborator" });
+      }
+
+      // Check if already a collaborator
+      const [existing] = await db
+        .select()
+        .from(formCollaborators)
+        .where(and(eq(formCollaborators.formId, input.formId), eq(formCollaborators.userId, invitedUser.id)));
+      if (existing) throw new TRPCError({ code: "BAD_REQUEST", message: "User is already a collaborator" });
+
+      await db.insert(formCollaborators).values({
+        formId: input.formId,
+        userId: invitedUser.id,
+        role: input.role,
+      });
+
+      return { success: true, message: "Collaborator added successfully" };
+    }),
+
+  removeFormCollaborator: protectedProcedure
+    .input(z.object({ collaboratorId: z.string().uuid() }))
+    .mutation(async ({ input, ctx }) => {
+      const [collab] = await db.select().from(formCollaborators).where(eq(formCollaborators.id, input.collaboratorId));
+      if (!collab) throw new TRPCError({ code: "NOT_FOUND", message: "Collaborator entry not found" });
+
+      const [form] = await db.select().from(forms).where(eq(forms.id, collab.formId));
+      if (!form || form.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN", message: "Forbidden" });
+
+      await db.delete(formCollaborators).where(eq(formCollaborators.id, input.collaboratorId));
+      return { success: true, message: "Collaborator removed successfully" };
     }),
 });

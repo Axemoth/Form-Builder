@@ -21,6 +21,14 @@ import {
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { toast } from "sonner";
+import { trpc } from "~/trpc/client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 
 interface FormWorkspaceHeaderProps {
   formId: string;
@@ -44,6 +52,8 @@ export function FormWorkspaceHeader({
   isDirty,
 }: FormWorkspaceHeaderProps) {
   const pathname = usePathname();
+  const utils = trpc.useUtils();
+  const updateStatusMutation = trpc.form.updateForm.useMutation();
 
   // Floating Guide and Prompt States
   const [isGuideOpen, setIsGuideOpen] = useState(false);
@@ -110,18 +120,49 @@ export function FormWorkspaceHeader({
                 <h1 className="font-heading text-2xl font-bold text-wano-cream leading-tight truncate max-w-md sm:max-w-xl">
                   {title || "Loading Chart..."}
                 </h1>
-                <span
-                  className={cn(
-                    "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider font-mono border select-none",
-                    status === "published"
-                      ? "bg-fruit-glow/10 border-fruit-glow/20 text-fruit-glow"
-                      : status === "draft"
-                        ? "bg-wano-cream/10 border-wano-cream/20 text-wano-cream/60"
-                        : "bg-wano-crimson/10 border-wano-crimson/20 text-wano-crimson",
-                  )}
+                <Select
+                  value={status}
+                  onValueChange={async (newStatus) => {
+                    try {
+                      await updateStatusMutation.mutateAsync({
+                        id: formId,
+                        status: newStatus as any,
+                      });
+                      toast.success(`Island sails adjusted! Form is now ${newStatus}.`);
+                      utils.form.getFormById.invalidate({ id: formId });
+                    } catch (err: any) {
+                      toast.error(err.message || "Failed to update status.");
+                    }
+                  }}
+                  disabled={updateStatusMutation.isPending}
                 >
-                  {status}
-                </span>
+                  <SelectTrigger className="bg-transparent border-none p-0 h-auto focus:ring-0 focus:ring-offset-0 w-auto hover:opacity-90 select-none">
+                    <span
+                      className={cn(
+                        "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider font-mono border cursor-pointer flex items-center gap-1 hover:brightness-125 transition-all shadow-[0_0_8px_rgba(0,0,0,0.2)]",
+                        status === "published"
+                          ? "bg-fruit-glow/10 border-fruit-glow/20 text-fruit-glow shadow-[0_0_12px_rgba(78,205,196,0.15)]"
+                          : status === "draft"
+                            ? "bg-wano-cream/10 border-wano-cream/20 text-wano-cream/60"
+                            : "bg-wano-crimson/10 border-wano-crimson/20 text-wano-crimson shadow-[0_0_12px_rgba(196,30,58,0.15)]",
+                      )}
+                    >
+                      {status}
+                      <span className="text-[7px] opacity-75">▼</span>
+                    </span>
+                  </SelectTrigger>
+                  <SelectContent className="glass-panel border-ocean-surface text-wano-cream min-w-[150px] shadow-2xl">
+                    <SelectItem value="draft" className="text-xs hover:bg-ocean-surface/60 cursor-pointer">
+                      Draft (Parchment Locked)
+                    </SelectItem>
+                    <SelectItem value="published" className="text-xs hover:bg-ocean-surface/60 cursor-pointer">
+                      Published (Setting Sail)
+                    </SelectItem>
+                    <SelectItem value="unpublished" className="text-xs hover:bg-ocean-surface/60 cursor-pointer">
+                      Unpublished (Anchored)
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <p className="text-[10px] text-wano-cream/40 font-mono flex items-center gap-1 mt-0.5">
                 <Compass className="w-3 h-3 animate-spin-slow text-wano-gold" />
@@ -229,6 +270,86 @@ export function FormWorkspaceHeader({
                     Select &apos;Published&apos; in Logistics below!
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Premium Info Alert Banner for Published Status */}
+        {status === "published" && (
+          <div className="mt-2 bg-gradient-to-r from-fruit-glow/10 via-ocean-mid/40 to-ocean-mid/20 border border-fruit-glow/25 rounded-xl p-4 shadow-[0_4px_25px_rgba(78,205,196,0.04)] relative overflow-hidden animate-fadeIn">
+            {/* Left Gold Accent Highlight Line */}
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-fruit-glow to-transparent" />
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pl-2">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-fruit-glow/10 border border-fruit-glow/20 text-fruit-glow shrink-0 mt-0.5 sm:mt-0">
+                  <Compass className="w-4 h-4 animate-spin-slow" />
+                </div>
+                <div>
+                  <h4 className="font-heading text-xs font-bold text-wano-cream flex items-center gap-1.5">
+                    🌊 Voyage Active: Island is Live (Published Mode)
+                  </h4>
+                  <p className="text-[11px] text-wano-cream/60 leading-relaxed mt-1">
+                    Your form is actively taking submissions! You can unpublish it at any time to halt new submissions by selecting <span className="text-wano-crimson font-semibold">Unpublished</span> in the header badge dropdown.
+                  </p>
+                </div>
+              </div>
+
+              <div className="shrink-0 self-end sm:self-auto">
+                <Button 
+                  onClick={handleShare}
+                  className="bg-fruit-glow/10 hover:bg-fruit-glow/20 border border-fruit-glow/30 text-fruit-glow text-[10px] px-3.5 py-1.5 h-auto font-bold rounded-lg flex items-center gap-1.5 transition-all duration-300"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  Share Live Link
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Premium Danger Alert Banner for Unpublished Status */}
+        {status === "unpublished" && (
+          <div className="mt-2 bg-gradient-to-r from-wano-crimson/10 via-ocean-mid/40 to-ocean-mid/20 border border-wano-crimson/25 rounded-xl p-4 shadow-[0_4px_25px_rgba(196,30,58,0.04)] relative overflow-hidden animate-fadeIn">
+            {/* Left Gold Accent Highlight Line */}
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-wano-crimson to-transparent" />
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pl-2">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-wano-crimson/10 border border-wano-crimson/20 text-wano-crimson shrink-0 mt-0.5 sm:mt-0">
+                  <Anchor className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-heading text-xs font-bold text-wano-cream flex items-center gap-1.5">
+                    ⚓ Island is Anchored (Unpublished Mode)
+                  </h4>
+                  <p className="text-[11px] text-wano-cream/60 leading-relaxed mt-1">
+                    This form is closed to submissions. Existing responses are safely kept. You can republish it at any time by changing the status to <span className="text-fruit-glow font-semibold">Published</span>.
+                  </p>
+                </div>
+              </div>
+
+              <div className="shrink-0 self-end sm:self-auto">
+                <Button 
+                  onClick={async () => {
+                    try {
+                      await updateStatusMutation.mutateAsync({
+                        id: formId,
+                        status: "published",
+                      });
+                      toast.success("Island sails adjusted! Form is now published.");
+                      utils.form.getFormById.invalidate({ id: formId });
+                    } catch (err: any) {
+                      toast.error(err.message || "Failed to update status.");
+                    }
+                  }}
+                  disabled={updateStatusMutation.isPending}
+                  className="bg-wano-sakura/10 hover:bg-wano-sakura/20 border border-wano-sakura/30 text-wano-sakura text-[10px] px-3.5 py-1.5 h-auto font-bold rounded-lg flex items-center gap-1.5 transition-all duration-300"
+                >
+                  <Compass className="w-3.5 h-3.5 animate-spin-slow" />
+                  Set Sail (Publish)
+                </Button>
               </div>
             </div>
           </div>

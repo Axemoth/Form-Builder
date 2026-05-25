@@ -15,6 +15,7 @@ import {
   Copy,
   Archive,
   RotateCcw,
+  Compass,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "~/lib/utils";
@@ -52,6 +53,16 @@ export function FormCard({ form, responseCount = 0 }: FormCardProps) {
     },
     onError: (err) => {
       toast.error(err.message || "Failed to clone form.");
+    },
+  });
+
+  const updateStatusMutation = trpc.form.updateForm.useMutation({
+    onSuccess: (data) => {
+      toast.success(data.message || "Island sails adjusted successfully!");
+      utils.form.getUserForms.invalidate();
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update island status.");
     },
   });
 
@@ -181,6 +192,35 @@ export function FormCard({ form, responseCount = 0 }: FormCardProps) {
                   <Copy className="w-4 h-4 text-wano-gold" />
                   Clone Island
                 </DropdownMenuItem>
+                {!form.isArchived && (
+                  <>
+                    <DropdownMenuSeparator className="bg-ocean-surface/50" />
+                    {form.status === "published" ? (
+                      <DropdownMenuItem
+                        onClick={() =>
+                          updateStatusMutation.mutate({ id: form.id, status: "unpublished" })
+                        }
+                        className="flex items-center gap-2 text-xs cursor-pointer text-wano-sakura hover:bg-ocean-surface/50 font-bold"
+                        disabled={updateStatusMutation.isPending}
+                      >
+                        <Anchor className="w-4 h-4 text-wano-sakura" />
+                        Unpublish (Anchor Ship)
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onClick={() =>
+                          updateStatusMutation.mutate({ id: form.id, status: "published" })
+                        }
+                        className="flex items-center gap-2 text-xs cursor-pointer text-fruit-glow hover:bg-ocean-surface/50 font-bold"
+                        disabled={updateStatusMutation.isPending}
+                      >
+                        <Compass className="w-4 h-4 text-fruit-glow" />
+                        Publish (Set Sail)
+                      </DropdownMenuItem>
+                    )}
+                  </>
+                )}
+                <DropdownMenuSeparator className="bg-ocean-surface/50" />
                 {form.isArchived ? (
                   <DropdownMenuItem
                     onClick={() => unarchiveMutation.mutate({ id: form.id })}
@@ -221,6 +261,18 @@ export function FormCard({ form, responseCount = 0 }: FormCardProps) {
             >
               {statusLabels[form.status]?.text}
             </span>
+
+            {form.status === "published" && (
+              <Link
+                href={`/f/${form.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] bg-fruit-glow/10 border border-fruit-glow/20 text-fruit-glow hover:bg-fruit-glow/25 hover:border-fruit-glow/40 transition-all hover:scale-105 font-heading font-bold uppercase select-none shadow-[0_0_8px_rgba(78,205,196,0.1)]"
+              >
+                <Compass className="w-3 h-3 animate-spin-slow" />
+                Visit
+              </Link>
+            )}
 
             {form.passwordHash && (
               <span className="flex items-center gap-1 text-[10px] text-wano-gold/80 px-1.5 py-0.5 rounded bg-wano-gold/5 border border-wano-gold/20 font-heading">

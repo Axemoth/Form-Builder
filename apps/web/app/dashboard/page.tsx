@@ -7,7 +7,7 @@ import { PageHeader } from "~/components/layout/page-header";
 import { StatsCard } from "~/components/dashboard/stats-card";
 import { FormCard } from "~/components/dashboard/form-card";
 import { CreateFormDialog } from "~/components/dashboard/create-form-dialog";
-import { Anchor, Compass, Plus, Loader2, FolderOpen, TrendingUp, Map, Search } from "lucide-react";
+import { Anchor, Compass, Plus, Loader2, FolderOpen, TrendingUp, Map, Search, Archive, ShieldAlert, Lock } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
@@ -41,9 +41,18 @@ export default function DashboardPage() {
   const forms = data?.forms || [];
   const totalForms = data?.total || 0;
 
-  // Calculate actual user statistics dynamically from active fleet data
+  // Calculate actual user statistics dynamically from active/archived data
   const totalResponses = forms.reduce((acc, form) => acc + form.responseCount, 0);
-  const activeForms = forms.filter((f) => f.status === "published").length;
+  
+  // Card 3 Value: count of published forms (active) or draft forms (archived)
+  const card3Value = viewMode === "active" 
+    ? forms.filter((f) => f.status === "published").length 
+    : forms.filter((f) => f.status === "draft").length;
+
+  // Card 4 Value: active routes ratio (active) or closed islands ratio (archived)
+  const card4Value = viewMode === "active"
+    ? (totalForms > 0 ? `${Math.round((forms.filter((f) => f.status === "published").length / totalForms) * 100)}%` : "0%")
+    : (totalForms > 0 ? `${Math.round((forms.filter((f) => f.status === "unpublished").length / totalForms) * 100)}%` : "0%");
 
   return (
     <div className="space-y-8">
@@ -65,34 +74,28 @@ export default function DashboardPage() {
       {/* Stats Cards Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatsCard
-          title="Total Forms Created"
+          title={viewMode === "active" ? "Total Active Forms" : "Total Archived Forms"}
           value={isLoading ? "..." : totalForms}
-          icon={Map}
-          description="Charted Islands"
+          icon={viewMode === "active" ? Map : Archive}
+          description={viewMode === "active" ? "Charted Active Islands" : "Archived/Preserved Islands"}
         />
         <StatsCard
-          title="Total Answers Collected"
+          title={viewMode === "active" ? "Total Answers Collected" : "Archived Answers Preserved"}
           value={isLoading ? "..." : totalResponses}
-          icon={Anchor}
-          description="Treasures Discovered"
+          icon={viewMode === "active" ? Anchor : ShieldAlert}
+          description={viewMode === "active" ? "Active Treasures Discovered" : "Treasures Locked in Vault"}
         />
         <StatsCard
-          title="Published Forms Live"
-          value={isLoading ? "..." : activeForms}
-          icon={Compass}
-          description="Active Sea Routes"
+          title={viewMode === "active" ? "Published Forms Live" : "Draft Archived Forms"}
+          value={isLoading ? "..." : card3Value}
+          icon={viewMode === "active" ? Compass : FolderOpen}
+          description={viewMode === "active" ? "Active Sea Routes" : "Unpublished Archived Copies"}
         />
         <StatsCard
-          title="Percentage of Active Routes"
-          value={
-            isLoading
-              ? "..."
-              : totalForms > 0
-                ? `${Math.round((activeForms / totalForms) * 100)}%`
-                : "0%"
-          }
-          icon={TrendingUp}
-          description="Log Success Rate"
+          title={viewMode === "active" ? "Percentage of Active Routes" : "Closed Islands Ratio"}
+          value={isLoading ? "..." : card4Value}
+          icon={viewMode === "active" ? TrendingUp : Lock}
+          description={viewMode === "active" ? "Log Success Rate" : "Anchored Forms Percentage"}
         />
       </div>
 
