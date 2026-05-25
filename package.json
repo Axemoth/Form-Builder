@@ -2,6 +2,7 @@
   "name": "trpc-monorepo",
   "private": true,
   "scripts": {
+    "start": "node apps/api/dist/index.js",
     "build": "dotenv -- turbo build",
     "dev": "dotenv -- turbo dev",
     "db:generate": "dotenv -- turbo db:generate",
