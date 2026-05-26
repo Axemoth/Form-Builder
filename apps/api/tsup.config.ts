@@ -2,13 +2,7 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
   entry: ["./src/index.ts"],
-  noExternal: [
-    "@repo/trpc",
-    "@repo/logger",
-    "@repo/database",
-    "@repo/services",
-    "@teachyst"
-  ], // bundle internal workspaces and teachyst packages
+  noExternal: [/.*/], // bundle all monorepo workspaces and npm dependencies into a standalone file
   splitting: false,
   bundle: true,
   outDir: "./dist",
