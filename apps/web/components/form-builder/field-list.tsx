@@ -51,56 +51,56 @@ interface FieldListProps {
 const FIELD_TYPES = [
   {
     type: "short_text",
-    name: "Short Text Field",
-    secondary: "Gomu Gomu Input",
-    desc: "Single-line short text",
+    name: "Short Text",
+    secondary: "Single Line",
+    desc: "Single-line short text input",
   },
   {
     type: "long_text",
-    name: "Long Text Area",
-    secondary: "Mera Mera Scroll",
-    desc: "Detailed multi-line logs",
+    name: "Long Text",
+    secondary: "Multi Line",
+    desc: "Detailed multi-line text area",
   },
   {
     type: "email",
     name: "Email Address",
-    secondary: "Den Den Receptor",
+    secondary: "Email Input",
     desc: "Valid email address capture",
   },
   {
     type: "number",
-    name: "Numeric Field",
-    secondary: "Beri Beri Count",
+    name: "Number",
+    secondary: "Numeric Input",
     desc: "Quantities, counts, or values",
   },
   {
     type: "single_select",
-    name: "Single Select Bloom",
-    secondary: "Hana Hana Choices",
-    desc: "Choose one from choices list",
+    name: "Single Select",
+    secondary: "Dropdown",
+    desc: "Choose one from a list",
   },
   {
     type: "multi_select",
-    name: "Multi Select Shadows",
-    secondary: "Kage Kage Shadows",
+    name: "Multi Select",
+    secondary: "Checkboxes",
     desc: "Choose multiple from options",
   },
   {
     type: "checkbox",
-    name: "Switch Toggle",
-    secondary: "Sube Sube Smooth",
+    name: "Toggle",
+    secondary: "Yes / No",
     desc: "Simple binary yes/no toggle",
   },
   {
     type: "rating",
-    name: "Rating Scale",
-    secondary: "Gura Gura Stars",
-    desc: "Visual star scale array",
+    name: "Rating",
+    secondary: "Star Scale",
+    desc: "Visual star rating scale",
   },
   {
     type: "date",
     name: "Date Picker",
-    secondary: "Toki Toki Calendar",
+    secondary: "Calendar",
     desc: "Calendar date input select",
   },
 ];
@@ -121,21 +121,21 @@ export function FieldList({ fields, onFieldsChange }: FieldListProps) {
   const handleAddField = (type: string) => {
     const nextOrder = fields.length;
     const fieldTypeMeta = FIELD_TYPES.find((f) => f.type === type);
-    const fruitCore = fieldTypeMeta?.secondary ? fieldTypeMeta.secondary.split(" ")[0] : "Query";
+    const fieldName = fieldTypeMeta?.name || "Question";
     const clientId = createClientId();
 
     const newField: FormField = {
       clientId,
       type,
-      label: `What is your ${fruitCore}?`,
+      label: `Untitled ${fieldName} Field`,
       placeholder: "",
       required: false,
       order: nextOrder,
       options:
         type === "single_select" || type === "multi_select"
           ? [
-              { label: "Straw Hat Crew", value: "straw-hat", order: 0 },
-              { label: "Beast Pirates", value: "beast-pirate", order: 1 },
+              { label: "Option 1", value: "option-1", order: 0 },
+              { label: "Option 2", value: "option-2", order: 1 },
             ]
           : undefined,
     };
@@ -188,10 +188,10 @@ export function FieldList({ fields, onFieldsChange }: FieldListProps) {
       <div className="flex items-center justify-between mb-4 border-b border-ocean-surface/30 pb-3">
         <h3 className="font-heading text-sm uppercase tracking-wider text-wano-gold font-bold flex items-center gap-1.5">
           <Compass className="w-4 h-4" />
-          Devil Fruit Inventory ({fields.length})
+          Form Fields ({fields.length})
         </h3>
         <span className="text-[10px] text-wano-cream/40 font-mono">
-          Manual Reordering course active
+          Drag to reorder
         </span>
       </div>
 
@@ -290,20 +290,20 @@ export function FieldList({ fields, onFieldsChange }: FieldListProps) {
           <div className="flex flex-col items-center justify-center py-16 bg-ocean-mid/10 rounded-xl border border-dashed border-ocean-surface/50 p-6 text-center">
             <HelpCircle className="w-8 h-8 text-wano-cream/30 mb-3" />
             <p className="text-xs text-wano-cream/50 leading-relaxed max-w-[240px]">
-              No powers equipped. Summon your first Devil Fruit question block using the selection
-              dropdown.
+              No fields added yet. Add your first question field using the button
+              below.
             </p>
           </div>
         )}
       </div>
 
-      {/* Add Field Button - Devil Fruit summon list */}
+      {/* Add Field Button */}
       <div className="pt-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button className="w-full btn-crimson rounded-xl py-6 font-semibold flex items-center justify-center gap-2 text-xs shadow-md">
               <Plus className="w-4 h-4" />
-              Discover a New Devil Fruit
+              Add a New Field
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent

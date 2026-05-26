@@ -5,27 +5,27 @@ import Image from "next/image";
 
 const testimonials = [
   {
-    name: "Monkey D. Luffy",
-    role: "Captain of the Straw Hat Pirates",
+    name: "Alex Thompson",
+    role: "Product Manager at TechFlow",
     avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
     quote:
-      "AxeForm made it so easy to count our meat rations! Creating forms feels like mapping a new island. It's the most free way to collect opinions!",
+      "AxeForm made collecting feedback incredibly easy! Creating forms is intuitive and fast. It's the best way to gather team opinions and insights.",
     rating: 5,
   },
   {
-    name: "Nami",
-    role: "Navigator",
+    name: "Sarah Chen",
+    role: "Data Analyst",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
     quote:
-      "The advanced analytics are extremely precise. Tracking our treasures and crew spending has never been this simple. Highly recommended for any serious organization.",
+      "The advanced analytics are extremely precise. Tracking response data and trends has never been this simple. Highly recommended for any serious organization.",
     rating: 5,
   },
   {
-    name: "Dracule Mihawk",
-    role: "Strongest Swordsman",
+    name: "James Rivera",
+    role: "UX Designer",
     avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150",
     quote:
-      "A sharp, elegant tool. Building forms with custom Haki security is swift and precise. It does not waste a single pixel of space.",
+      "A sharp, elegant tool. Building forms with custom security features is swift and precise. It does not waste a single pixel of space.",
     rating: 5,
   },
 ];
@@ -42,10 +42,10 @@ export function TestimonialsSection() {
       {/* Section Header */}
       <div className="max-w-7xl mx-auto text-center mb-16 relative z-10">
         <h2 className="font-heading text-4xl md:text-5xl text-wano-cream mb-4">
-          Voices from the <span className="text-gradient-gold">Grand Line</span>
+          What Our <span className="text-gradient-gold">Users Say</span>
         </h2>
         <p className="text-wano-cream/60 text-lg max-w-2xl mx-auto">
-          Hear what the most legendary captains and navigators say about AxeForm.
+          Hear what professionals across industries say about AxeForm.
         </p>
       </div>
 

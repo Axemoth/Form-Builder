@@ -24,6 +24,7 @@ export function LandingNavbar() {
 
   const navLinks = [
     { name: "Features", href: "#features" },
+    { name: "Themes", href: "#themes" },
     { name: "Pricing", href: "#pricing" },
     { name: "Explore", href: "/explore" },
   ];
@@ -72,7 +73,7 @@ export function LandingNavbar() {
         <Link href="/login">
           <Button className="btn-crimson rounded-xl px-6 py-5 text-sm font-semibold flex items-center gap-2">
             <Anchor className="w-4 h-4" />
-            Start Your Voyage
+            Get Started
           </Button>
         </Link>
       </div>
@@ -127,7 +128,7 @@ export function LandingNavbar() {
               <Link href="/login" className="w-full">
                 <Button className="w-full btn-crimson rounded-xl py-6 text-sm font-semibold flex items-center justify-center gap-2">
                   <Anchor className="w-4 h-4" />
-                  Start Your Voyage
+                  Get Started
                 </Button>
               </Link>
             </div>

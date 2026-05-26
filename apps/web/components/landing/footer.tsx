@@ -13,7 +13,7 @@ export function Footer() {
     Resources: [
       { name: "Documentation", href: "#" },
       { name: "Changelog", href: "#" },
-      { name: "Sea Chart Guide", href: "#" },
+      { name: "Getting Started", href: "#" },
     ],
     Company: [
       { name: "About Us", href: "#" },
@@ -56,8 +56,8 @@ export function Footer() {
             <span className="font-heading text-2xl font-bold text-gradient-gold">AxeForm</span>
           </Link>
           <p className="text-wano-cream/50 text-sm max-w-sm mt-2 leading-relaxed">
-            The ultimate anime-themed form builder SaaS. Customize fields with Devil Fruit powers,
-            password protect with Haki, and navigate stats like a Log Pose.
+            The ultimate modern form builder SaaS. Customize field types with powerful options,
+            add password protection, and navigate stats with built-in analytics.
           </p>
         </div>
 
@@ -85,7 +85,7 @@ export function Footer() {
       {/* Bottom Row */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 mt-16 pt-8 border-t border-ocean-surface/20 flex flex-col md:flex-row justify-between items-center gap-4 relative z-20">
         <span className="text-wano-cream/40 text-xs">
-          &copy; 2026 AxeForm. Charting the Grand Line of Forms.
+          &copy; 2026 AxeForm. Building better forms, together.
         </span>
         <div className="flex gap-6">
           <Link href="#" className="text-wano-cream/40 hover:text-wano-sakura text-xs">

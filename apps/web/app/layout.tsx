@@ -19,11 +19,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "AxeForm — Chart Your Forms Across the Grand Line",
+    default: "AxeForm — Build Beautiful Forms, Effortlessly",
     template: "%s | AxeForm",
   },
   description:
-    "Build powerful forms, collect treasures of data, and navigate your insights — a One Piece themed form builder SaaS.",
+    "Build powerful forms, collect meaningful data, and navigate your insights — a modern, feature-rich form builder SaaS.",
   keywords: ["form builder", "surveys", "polls", "AxeForm", "forms"],
   icons: {
     icon: "/axeform-logo.png",

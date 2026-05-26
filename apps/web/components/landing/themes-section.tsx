@@ -26,11 +26,11 @@ export function ThemesSection() {
   const themesList: ThemeItem[] = [
     {
       id: "wano",
-      name: "Wano Country (One Piece)",
+      name: "Wano Country",
       badge: "System Default",
-      tagline: "The Grand Line Voyage",
+      tagline: "Classic Elegant Theme",
       description:
-        "Set sail with falling cherry blossom petals, deep indigo waves, parchment backings, tilted straw hat ornaments, and pirate Jolly Roger skulls.",
+        "Featuring falling cherry blossom petals, deep indigo waves, warm parchment textures, and elegant gold accents for a refined visual experience.",
       colorClass: "from-wano-crimson to-wano-gold",
       borderClass: "border-wano-gold/40",
       badgeClass: "bg-wano-gold/15 text-wano-gold border-wano-gold/30",
@@ -233,7 +233,7 @@ export function ThemesSection() {
                     {activeTheme === "wano" && (
                       <div className="text-[9px] font-semibold text-wano-gold uppercase tracking-widest flex items-center justify-center gap-1.5 mb-1">
                         <Anchor className="w-3 h-3 animate-spin-slow" />
-                        Grand Line Survey Log
+                        Survey Response Form
                       </div>
                     )}
                     {activeTheme === "stark" && (
@@ -257,7 +257,7 @@ export function ThemesSection() {
                           "font-sans text-zinc-50 uppercase tracking-widest font-black",
                       )}
                     >
-                      {activeTheme === "wano" && "Straw Hat Crew Survey"}
+                      {activeTheme === "wano" && "Team Feedback Survey"}
                       {activeTheme === "stark" && "Tony Stark Network Access"}
                       {activeTheme === "batman" && "Gotham Vigilante Checkpoint"}
                     </h3>
@@ -275,7 +275,7 @@ export function ThemesSection() {
                           activeTheme === "batman" && "text-[#F5B921]",
                         )}
                       >
-                        {activeTheme === "wano" && "Your Pirate Alias *"}
+                        {activeTheme === "wano" && "Your Full Name *"}
                         {activeTheme === "stark" && "Operator Security ID *"}
                         {activeTheme === "batman" && "Authorized Codename *"}
                       </label>
@@ -290,7 +290,7 @@ export function ThemesSection() {
                             "bg-zinc-900/60 border-zinc-850 text-zinc-300 placeholder:text-zinc-550",
                         )}
                       >
-                        {activeTheme === "wano" && "Monkey D. Luffy"}
+                        {activeTheme === "wano" && "John Doe"}
                         {activeTheme === "stark" && "JARVIS-RECRUIT-902"}
                         {activeTheme === "batman" && "DARK KNIGHT 82"}
                       </div>
@@ -306,7 +306,7 @@ export function ThemesSection() {
                           activeTheme === "batman" && "text-[#F5B921]",
                         )}
                       >
-                        {activeTheme === "wano" && "Overall Fleet Rank"}
+                        {activeTheme === "wano" && "Overall Satisfaction"}
                         {activeTheme === "stark" && "Core Reactor Efficiency"}
                         {activeTheme === "batman" && "Threat Assessment Metric"}
                       </label>
@@ -386,7 +386,7 @@ export function ThemesSection() {
                           activeTheme === "batman" && "text-zinc-400 font-sans",
                         )}
                       >
-                        {activeTheme === "wano" && "I agree to hunt the One Piece treasures"}
+                        {activeTheme === "wano" && "I agree to the terms and conditions"}
                         {activeTheme === "stark" && "AUTHORIZE DATA BACKUP DISPATCH LOG"}
                         {activeTheme === "batman" && "ENCRYPT AND TRANSMIT INTELLIGENCE COPIES"}
                       </span>
@@ -407,7 +407,7 @@ export function ThemesSection() {
                           "bg-zinc-900 border-[#F5B921] text-[#F5B921] hover:bg-zinc-900/80 font-sans tracking-widest uppercase font-bold",
                       )}
                     >
-                      {activeTheme === "wano" && "Send Logpose Coordinates"}
+                      {activeTheme === "wano" && "Submit Response"}
                       {activeTheme === "stark" && "INITIATE TRANSMISSION"}
                       {activeTheme === "batman" && "TRANSMIT TO BATCAVE"}
                     </button>

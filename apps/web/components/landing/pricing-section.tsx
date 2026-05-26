@@ -7,11 +7,11 @@ import { Button } from "~/components/ui/button";
 
 const plans = [
   {
-    name: "Cabin Boy",
+    name: "Starter",
     icon: Anchor,
     price: { monthly: 0, annual: 0 },
-    description: "Perfect for setting sail on your first voyage",
-    cta: "Set Sail",
+    description: "Perfect for getting started with your first forms",
+    cta: "Get Started",
     popular: false,
     features: [
       "5 Forms",
@@ -23,11 +23,11 @@ const plans = [
     ],
   },
   {
-    name: "First Mate",
+    name: "Professional",
     icon: Swords,
     price: { monthly: 19, annual: 15 },
-    description: "For crews ready to conquer the Grand Line",
-    cta: "Join the Crew",
+    description: "For teams ready to scale their workflows",
+    cta: "Upgrade Now",
     popular: true,
     features: [
       "Unlimited Forms",
@@ -42,11 +42,11 @@ const plans = [
     ],
   },
   {
-    name: "Pirate King",
+    name: "Enterprise",
     icon: Crown,
     price: { monthly: 49, annual: 39 },
-    description: "Command the entire seas — ultimate power",
-    cta: "Claim the Throne",
+    description: "Full control with enterprise-grade features",
+    cta: "Contact Sales",
     popular: false,
     features: [
       "Everything in First Mate",
@@ -70,11 +70,11 @@ export function PricingSection() {
       {/* Section Header */}
       <div className="max-w-7xl mx-auto text-center mb-16">
         <h2 className="font-heading text-4xl md:text-5xl text-wano-cream mb-4">
-          Choose Your <span className="text-gradient-gold">Crew</span>
+          Choose Your <span className="text-gradient-gold">Plan</span>
         </h2>
         <p className="text-wano-cream/60 text-lg max-w-2xl mx-auto">
-          Every great pirate crew needs the right resources. Pick the plan that matches your
-          ambition.
+          Every growing team needs the right tools. Pick the plan that matches your
+          ambitions.
         </p>
 
         {/* Billing Toggle */}
