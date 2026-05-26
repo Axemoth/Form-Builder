@@ -117,6 +117,17 @@ export function FormRenderer({ form, password }: FormRendererProps) {
               `Answer cannot exceed ${bounds.maxLength} characters.`,
             );
           }
+          if (typeof bounds.pattern === "string" && bounds.pattern.trim() !== "") {
+            try {
+              const regex = new RegExp(bounds.pattern);
+              txtSchema = (txtSchema as z.ZodString).regex(
+                regex,
+                "Input does not match expected format pattern.",
+              );
+            } catch (e) {
+              console.warn("Invalid regex pattern in validations: ", bounds.pattern);
+            }
+          }
         }
 
         if (field.required) {
@@ -145,34 +156,32 @@ export function FormRenderer({ form, password }: FormRendererProps) {
       }
 
       case "number": {
-        if (field.required) {
-          let numSchema: z.ZodTypeAny = z.preprocess(
-            (val) => (val === "" ? undefined : Number(val)),
-            z.number().refine((val) => !isNaN(val), "Must be a number."),
-          );
+        const bounds = field.validations;
 
-          const bounds = field.validations;
-          if (bounds) {
-            if (typeof bounds.min === "number") {
-              numSchema = numSchema.refine(
-                (val) => Number(val) >= bounds.min,
-                `Value must be at least ${bounds.min}.`,
-              );
+        const numSchema = z.number()
+          .refine((val) => !isNaN(val), { message: "Must be a number." })
+          .refine((val) => {
+            if (bounds && typeof bounds.min === "number") {
+              return val >= bounds.min;
             }
-            if (typeof bounds.max === "number") {
-              numSchema = numSchema.refine(
-                (val) => Number(val) <= bounds.max,
-                `Value cannot exceed ${bounds.max}.`,
-              );
+            return true;
+          }, { message: `Value must be at least ${bounds?.min}.` })
+          .refine((val) => {
+            if (bounds && typeof bounds.max === "number") {
+              return val <= bounds.max;
             }
-          }
-          schema = numSchema;
-        } else {
-          schema = z.preprocess(
-            (val) => (val === "" || val === undefined ? null : Number(val)),
-            z.number().nullable().optional(),
-          );
-        }
+            return true;
+          }, { message: `Value cannot exceed ${bounds?.max}.` });
+
+        schema = z.preprocess(
+          (val) => {
+            if (val === "" || val === undefined || val === null) {
+              return undefined;
+            }
+            return Number(val);
+          },
+          field.required ? numSchema : numSchema.optional().nullable(),
+        );
         break;
       }
 
@@ -226,10 +235,21 @@ export function FormRenderer({ form, password }: FormRendererProps) {
 
       case "date": {
         let dateSchema: z.ZodTypeAny = z.string();
+
+        const validateDate = (val: any) => {
+          if (!val) return true;
+          return !isNaN(Date.parse(String(val)));
+        };
+
         if (field.required) {
-          dateSchema = (dateSchema as z.ZodString).min(1, "Please select a date.");
+          dateSchema = (dateSchema as z.ZodString)
+            .min(1, "Please select a date.")
+            .refine(validateDate, { message: "Please enter a valid date." });
         } else {
-          dateSchema = dateSchema.optional().or(z.literal(""));
+          dateSchema = dateSchema
+            .optional()
+            .or(z.literal(""))
+            .refine((val) => !val || validateDate(val), { message: "Please enter a valid date." });
         }
         schema = dateSchema;
         break;

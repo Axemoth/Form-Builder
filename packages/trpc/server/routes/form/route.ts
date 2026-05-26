@@ -1582,8 +1582,7 @@ export const formRouter = router({
           field.type === "long_text" ||
           field.type === "email" ||
           field.type === "number" ||
-          field.type === "phone" ||
-          field.type === "url"
+          field.type === "date"
         ) {
           const answers = await db
             .select({ value: responseAnswers.value })
