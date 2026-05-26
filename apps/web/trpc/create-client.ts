@@ -2,8 +2,8 @@ import { httpLink, httpBatchStreamLink } from "@repo/trpc/client";
 import { env } from "~/env.js";
 
 function getBaseUrl() {
-  if (env.NEXT_PUBLIC_API_URL) return env.NEXT_PUBLIC_API_URL;
   if (typeof window !== "undefined") return "";
+  if (env.NEXT_PUBLIC_API_URL) return env.NEXT_PUBLIC_API_URL;
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
 
