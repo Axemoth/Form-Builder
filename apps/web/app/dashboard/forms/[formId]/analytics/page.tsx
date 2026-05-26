@@ -321,6 +321,27 @@ export default function FormAnalyticsPage() {
                       );
                     })}
                   </div>
+                ) : stats._recentResponses ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono text-wano-cream/50 uppercase">
+                        Recent Responses
+                      </span>
+                      <span className="bg-wano-gold/10 border border-wano-gold/25 px-2 py-0.5 rounded-lg text-[9px] font-mono font-bold text-wano-gold">
+                        {stats._totalCount} total
+                      </span>
+                    </div>
+                    <div className="space-y-2 max-h-56 overflow-y-auto axe-scrollbar pr-1">
+                      {(stats._recentResponses as string[]).map((response: string, idx: number) => (
+                        <div
+                          key={idx}
+                          className="bg-ocean-deep/55 border border-ocean-surface/30 px-3 py-2 rounded-xl text-[11px] text-wano-cream/80 break-words"
+                        >
+                          {response}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 ) : (
                   <div className="py-6 text-center text-[10px] text-wano-cream/30 italic">
                     Freeform answers captured. View them on the "Treasures Collected" tab.

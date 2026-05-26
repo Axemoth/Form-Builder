@@ -1577,6 +1577,29 @@ export const formRouter = router({
           });
           stats.true = yes;
           stats.false = no;
+        } else if (
+          field.type === "short_text" ||
+          field.type === "long_text" ||
+          field.type === "email" ||
+          field.type === "number" ||
+          field.type === "phone" ||
+          field.type === "url"
+        ) {
+          const answers = await db
+            .select({ value: responseAnswers.value })
+            .from(responseAnswers)
+            .where(eq(responseAnswers.fieldId, field.id));
+
+          const textResponses: string[] = [];
+          answers.forEach((ans: { value: unknown }) => {
+            if (ans.value !== null && ans.value !== undefined && String(ans.value).trim() !== "") {
+              textResponses.push(String(ans.value));
+            }
+          });
+
+          stats._totalCount = textResponses.length;
+          // Store the latest 10 responses for preview
+          stats._recentResponses = textResponses.slice(-10).reverse();
         }
 
         fieldDistribution.push({
