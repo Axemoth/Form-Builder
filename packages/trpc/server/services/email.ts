@@ -391,3 +391,131 @@ export async function sendNotificationEmail(args: SendEmailArgs): Promise<boolea
     return true;
   }
 }
+
+export interface SendVerificationEmailArgs {
+  to: string;
+  token: string;
+}
+
+export async function sendVerificationEmail(args: SendVerificationEmailArgs): Promise<boolean> {
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpPort = process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : undefined;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const smtpFrom = process.env.SMTP_FROM || "AxeForm <noreply@axeform.com>";
+  const baseUrl = process.env.BASE_URL || "http://localhost:8000"; // API base URL (since emails go to API or web app)
+  // Let's route verification links to the web app which points to apps/web (running on http://localhost:3000 in dev)
+  const clientUrl = process.env.NODE_ENV === "production" ? baseUrl : "http://localhost:3000";
+
+  const verificationUrl = `${clientUrl}/auth/verify-email?token=${args.token}`;
+
+  const subject = "Verify your AxeForm account";
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${subject}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #060b13; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #f5eedc; -webkit-font-smoothing: antialiased;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #060b13; padding: 40px 10px;">
+    <tr>
+      <td align="center">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; background-color: #101c30; border: 2px solid #c9a84c; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);">
+          <tr>
+            <td style="background: linear-gradient(90deg, #c41e3a, #c9a84c); padding: 25px 30px; text-align: center; border-bottom: 2px solid #c9a84c;">
+              <h1 style="margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 3px; color: #ffffff; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6); font-family: 'Georgia', serif;">
+                ⚓ AXEFORM SURVEY CO. ⚓
+              </h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 35px 40px; text-align: center;">
+              <h2 style="margin: 0 0 15px 0; font-size: 19px; color: #c9a84c; font-family: 'Georgia', serif;">
+                🌸 Welcome Aboard! 🌸
+              </h2>
+              <p style="margin: 0 0 25px 0; font-size: 13px; color: rgba(245, 238, 220, 0.75); line-height: 1.6;">
+                Thank you for joining our crew. To verify your email coordinates and unlock full platform capabilities, please click the button below:
+              </p>
+              
+              <table border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto 30px auto;">
+                <tr>
+                  <td align="center" style="border-radius: 8px; background-color: #c41e3a;">
+                    <a href="${verificationUrl}" target="_blank" style="padding: 12px 24px; border: 1px solid #c9a84c; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: bold; color: #ffffff; text-decoration: none; display: inline-block;">
+                      Verify Email Address
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="margin: 0 0 10px 0; font-size: 11px; color: rgba(245, 238, 220, 0.5); line-height: 1.4;">
+                If you did not initiate this credentials registration, you can safely disregard this message.
+              </p>
+              
+              <p style="margin: 0; font-size: 10px; color: rgba(245, 238, 220, 0.4); text-transform: uppercase; letter-spacing: 1px; font-family: 'Georgia', serif;">
+                DISPATCHED VIA NEWS COO BIRD // WANO DIVISION
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+
+  const text = `
+Verify your AxeForm Account:
+To verify your email address and unlock all platform capabilities, visit:
+${verificationUrl}
+
+If you did not sign up for an account, please ignore this email.
+  `;
+
+  if (smtpHost && smtpPort && smtpUser && smtpPass) {
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465,
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
+    });
+
+    await transporter.sendMail({
+      from: smtpFrom,
+      to: args.to,
+      subject,
+      text,
+      html,
+    });
+
+    console.log(`[SMTP] Verification email sent to ${args.to}`);
+    return true;
+  } else {
+    // VISUAL LOCAL SANDBOX
+    const timestamp = Date.now();
+    const cleanTo = args.to.replace(/[^a-zA-Z0-9]/g, "_");
+    const projectRoot = path.resolve(process.cwd());
+    const sandboxDir = path.join(projectRoot, "tmp", "test-emails");
+
+    try {
+      fs.mkdirSync(sandboxDir, { recursive: true });
+      const filename = `${timestamp}_verification_to_${cleanTo}.html`;
+      const filePath = path.join(sandboxDir, filename);
+      fs.writeFileSync(filePath, html, "utf-8");
+
+      console.log("\n=================== 📧 SANDBOX VERIFICATION EMAIL 📧 ===================");
+      console.log(`To:      ${args.to}`);
+      console.log(`Subject: ${subject}`);
+      console.log(`Link:    ${verificationUrl}`);
+      console.log(`File:    ${path.relative(projectRoot, filePath)}`);
+      console.log("=========================================================================\n");
+    } catch (fsErr) {
+      console.error("[SANDBOX] Failed to write sandbox HTML file:", fsErr);
+    }
+    return true;
+  }
+}

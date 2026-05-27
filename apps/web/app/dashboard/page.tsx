@@ -7,6 +7,7 @@ import { PageHeader } from "~/components/layout/page-header";
 import { StatsCard } from "~/components/dashboard/stats-card";
 import { FormCard } from "~/components/dashboard/form-card";
 import { CreateFormDialog } from "~/components/dashboard/create-form-dialog";
+import { VerificationBanner } from "~/components/dashboard/verification-banner";
 import { Anchor, Compass, Plus, Loader2, FolderOpen, TrendingUp, Map, Search, Archive, ShieldAlert, Lock } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -70,6 +71,9 @@ export default function DashboardPage() {
           </Button>
         }
       />
+
+      {/* Verification Banner HUD */}
+      <VerificationBanner />
 
       {/* Stats Cards Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">

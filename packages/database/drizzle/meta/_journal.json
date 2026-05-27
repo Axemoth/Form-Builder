@@ -50,6 +50,13 @@
       "when": 1779626998879,
       "tag": "0006_even_dormammu",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1779885981853,
+      "tag": "0007_lame_morbius",
+      "breakpoints": true
     }
   ]
 }

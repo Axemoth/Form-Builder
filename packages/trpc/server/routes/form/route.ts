@@ -2,7 +2,7 @@ import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../../trpc";
 import { generatePath } from "../../utils/path-generator";
 import { zodUndefinedModel } from "../../schema";
-import { db, eq, and, like, sql, desc, notInArray } from "@repo/database";
+import { db, eq, and, like, sql, desc, notInArray, inArray } from "@repo/database";
 import {
   forms,
   fields,
@@ -43,6 +43,77 @@ async function verifyFormPasswordHash(password: string, passwordHash: string): P
   // Backward compatibility for forms protected before bcrypt hashing was introduced.
   const legacySha256Hash = crypto.createHash("sha256").update(password).digest("hex");
   return legacySha256Hash === passwordHash;
+}
+
+function isSafeRegex(pattern: string): boolean {
+  // A pattern is vulnerable to ReDoS if it has nested quantifiers or consecutive quantifiers.
+  // 1. Check for nested quantifiers like (a+)+, (a*)*, (a+)*, (\w+)+, etc.
+  const nestedQuantifiersRegex = /\([^)]*[*+?][^)]*\)[*+?{]/;
+  if (nestedQuantifiersRegex.test(pattern)) {
+    return false;
+  }
+
+  // 2. Check for consecutive quantifiers like a++, a**
+  const consecutiveQuantifiersRegex = /[*+?]{2,}/;
+  if (consecutiveQuantifiersRegex.test(pattern)) {
+    return false;
+  }
+
+  // 3. Check for overlapping alternative groups with quantifiers e.g. (a|a)+
+  const groupWithAlternativesRegex = /\([^|)]*\|[^)]*\)[*+?]/;
+  if (groupWithAlternativesRegex.test(pattern)) {
+    const inside = pattern.match(/\(([^)]+)\)/);
+    if (inside && inside[1]) {
+      const parts = inside[1].split('|');
+      const hasQuantifier = parts.some(p => /[*+?]/.test(p));
+      const hasDuplicates = new Set(parts).size !== parts.length;
+      if (hasQuantifier || hasDuplicates) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+function hasCycle(fieldsInput: any[]): boolean {
+  const adj = new Map<string, string>();
+  fieldsInput.forEach((f) => {
+    if (f.id && f.validations?.logic?.fieldId) {
+      adj.set(f.id, f.validations.logic.fieldId);
+    }
+  });
+
+  const visited = new Set<string>();
+  const recStack = new Set<string>();
+
+  const dfs = (node: string): boolean => {
+    if (recStack.has(node)) {
+      return true;
+    }
+    if (visited.has(node)) {
+      return false;
+    }
+
+    visited.add(node);
+    recStack.add(node);
+
+    const neighbor = adj.get(node);
+    if (neighbor && dfs(neighbor)) {
+      return true;
+    }
+
+    recStack.delete(node);
+    return false;
+  };
+
+  for (const node of adj.keys()) {
+    if (dfs(node)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 // Zod schemas for our endpoints
@@ -99,6 +170,13 @@ const FieldValidationInput = z
     if (value.pattern !== undefined) {
       try {
         new RegExp(value.pattern);
+        if (!isSafeRegex(value.pattern)) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["pattern"],
+            message: "pattern is too complex and poses a security risk (catastrophic backtracking)",
+          });
+        }
       } catch {
         ctx.addIssue({
           code: "custom",
@@ -275,6 +353,14 @@ export const formRouter = router({
         });
       }
 
+      // Hybrid Guard: Block publishing if email is unverified
+      if (input.status === "published" && !ctx.user.emailVerified) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Please verify your email address to publish this form.",
+        });
+      }
+
       // Build update data
       const updateData: Partial<typeof forms.$inferInsert> = {
         title: input.title,
@@ -353,6 +439,14 @@ export const formRouter = router({
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You do not have permission to modify this form's fields",
+        });
+      }
+
+      // Detect cyclic dependency loops in conditional logic
+      if (hasCycle(input.fields)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Saving failed: Conditional logic contains a cyclic dependency loop.",
         });
       }
 
@@ -616,28 +710,50 @@ export const formRouter = router({
           .where(eq(fields.formId, form.id))
           .orderBy(fields.order);
 
-        for (const f of dbFields) {
-          const dbOptions = await db
+        if (dbFields.length > 0) {
+          const fieldIds = dbFields.map((f) => f.id);
+          const allOptions = await db
             .select({
               id: fieldOptions.id,
+              fieldId: fieldOptions.fieldId,
               label: fieldOptions.label,
               value: fieldOptions.value,
               order: fieldOptions.order,
             })
             .from(fieldOptions)
-            .where(eq(fieldOptions.fieldId, f.id))
+            .where(inArray(fieldOptions.fieldId, fieldIds))
             .orderBy(fieldOptions.order);
 
-          schemaFields.push({
-            id: f.id,
-            type: f.type,
-            label: f.label,
-            placeholder: f.placeholder,
-            required: f.required,
-            order: f.order,
-            validations: f.validations,
-            options: dbOptions.length > 0 ? dbOptions : undefined,
-          });
+          const optionsByFieldId = allOptions.reduce((acc, opt) => {
+            if (opt.fieldId) {
+              let list = acc[opt.fieldId];
+              if (!list) {
+                list = [];
+                acc[opt.fieldId] = list;
+              }
+              list.push({
+                id: opt.id,
+                label: opt.label,
+                value: opt.value,
+                order: opt.order,
+              });
+            }
+            return acc;
+          }, {} as Record<string, any[]>);
+
+          for (const f of dbFields) {
+            const dbOptions = optionsByFieldId[f.id] || [];
+            schemaFields.push({
+              id: f.id,
+              type: f.type,
+              label: f.label,
+              placeholder: f.placeholder,
+              required: f.required,
+              order: f.order,
+              validations: f.validations,
+              options: dbOptions.length > 0 ? dbOptions : undefined,
+            });
+          }
         }
       }
 
@@ -888,6 +1004,44 @@ export const formRouter = router({
       // Fetch dynamic fields configuration
       const formFields = await db.select().from(fields).where(eq(fields.formId, form.id));
 
+      // Batch-fetch all options for select fields to prevent N+1 query loops
+      const selectFieldIds = formFields
+        .filter((f) => f.type === "single_select" || f.type === "multi_select")
+        .map((f) => f.id);
+
+      let allOptions: any[] = [];
+      if (selectFieldIds.length > 0) {
+        allOptions = await db
+          .select({
+            fieldId: fieldOptions.fieldId,
+            value: fieldOptions.value,
+          })
+          .from(fieldOptions)
+          .where(inArray(fieldOptions.fieldId, selectFieldIds));
+      }
+
+      // Map options by field ID for O(1) in-memory lookup
+      const optionsByFieldMap = allOptions.reduce((acc, opt) => {
+        if (opt.fieldId) {
+          let fieldSet = acc[opt.fieldId];
+          if (!fieldSet) {
+            fieldSet = new Set<string>();
+            acc[opt.fieldId] = fieldSet;
+          }
+          fieldSet.add(opt.value);
+        }
+        return acc;
+      }, {} as Record<string, Set<string>>);
+
+      // Hybrid Guard: Reject public submissions if form owner is unverified
+      const [owner] = await db.select().from(users).where(eq(users.id, form.userId));
+      if (!owner || !owner.emailVerified) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Submissions rejected: The form creator's email address is currently unverified.",
+        });
+      }
+
       const validationErrors: string[] = [];
       const validatedAnswers: Array<{ fieldId: string; value: any }> = [];
 
@@ -952,10 +1106,20 @@ export const formRouter = router({
                   `"${field.label}" length must be <= ${bounds.maxLength} chars.`,
                 );
               }
-              if (typeof bounds.pattern === "string" && !new RegExp(bounds.pattern).test(value)) {
-                validationErrors.push(
-                  `"${field.label}" input does not match expected format pattern.`,
-                );
+              if (typeof bounds.pattern === "string") {
+                if (value.length > 5000) {
+                  validationErrors.push(
+                    `"${field.label}" input is too long for format validation.`,
+                  );
+                } else if (!isSafeRegex(bounds.pattern)) {
+                  validationErrors.push(
+                    `"${field.label}" validation format is insecure (potential ReDoS).`,
+                  );
+                } else if (!new RegExp(bounds.pattern).test(value)) {
+                  validationErrors.push(
+                    `"${field.label}" input does not match expected format pattern.`,
+                  );
+                }
               }
             }
             validatedAnswers.push({ fieldId: field.id, value });
@@ -996,12 +1160,8 @@ export const formRouter = router({
               validationErrors.push(`Field "${field.label}" must select a single option.`);
               break;
             }
-            // Validate it matches dynamic choices allowed
-            const optExists = await db
-              .select()
-              .from(fieldOptions)
-              .where(and(eq(fieldOptions.fieldId, field.id), eq(fieldOptions.value, value)));
-            if (optExists.length === 0) {
+            const allowedValues = optionsByFieldMap[field.id];
+            if (!allowedValues || !allowedValues.has(value)) {
               validationErrors.push(
                 `"${value}" is not a valid selection for field "${field.label}".`,
               );
@@ -1016,14 +1176,8 @@ export const formRouter = router({
               validationErrors.push(`Field "${field.label}" must select an array of choices.`);
               break;
             }
-            // Validate options allowed
-            const dbOpts = await db
-              .select({ value: fieldOptions.value })
-              .from(fieldOptions)
-              .where(eq(fieldOptions.fieldId, field.id));
-            const allowedValues = dbOpts.map((o: { value: string }) => o.value);
-
-            const invalidChoices = value.filter((c) => !allowedValues.includes(c));
+            const allowedValues = optionsByFieldMap[field.id] || new Set<string>();
+            const invalidChoices = value.filter((c) => !allowedValues.has(c));
             if (invalidChoices.length > 0) {
               validationErrors.push(
                 `Choices [${invalidChoices.join(", ")}] are invalid options for field "${field.label}".`,
@@ -1059,8 +1213,9 @@ export const formRouter = router({
               break;
             }
 
-            if (isNaN(Date.parse(value))) {
-              validationErrors.push(`Field "${field.label}" must be a valid date format string.`);
+            const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+            if (!isoDatePattern.test(value) || isNaN(Date.parse(value))) {
+              validationErrors.push(`Field "${field.label}" must be a valid date in YYYY-MM-DD format.`);
             } else {
               validatedAnswers.push({ fieldId: field.id, value });
             }

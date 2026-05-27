@@ -538,3 +538,25 @@ export const emailLogsRelations = relations(emailLogs, ({ one }) => ({
     references: [responses.id],
   }),
 }));
+
+// ==========================================
+// Email Verifications Table
+// ==========================================
+
+export const emailVerifications = pgTable("email_verifications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
+  token: varchar("token", { length: 255 }).notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const emailVerificationsRelations = relations(emailVerifications, ({ one }) => ({
+  user: one(users, {
+    fields: [emailVerifications.userId],
+    references: [users.id],
+  }),
+}));
