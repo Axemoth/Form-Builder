@@ -12,14 +12,56 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import { trpc } from "~/trpc/client";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
+import Link from "next/link";
 
 interface NavbarProps {
   onCreateFormClick?: () => void;
 }
 
+function formatRelativeTime(dateInput: Date | string): string {
+  const date = new Date(dateInput);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `${days}d`;
+}
+
 export function Navbar({ onCreateFormClick }: NavbarProps) {
   const [userName, setUserName] = useState("Captain Luffy");
   const [userAvatar, setUserAvatar] = useState("");
+
+  const { data: notifications, isLoading } = trpc.form.getRecentNotifications.useQuery(undefined, {
+    refetchInterval: 15000,
+  });
+
+  const [hasUnread, setHasUnread] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+
+  useEffect(() => {
+    if (notifications && notifications.length > 0) {
+      const lastRead = localStorage.getItem("axeform_last_read_notifications");
+      const newestTime = new Date(notifications[0]!.submittedAt).getTime();
+      if (!lastRead || newestTime > Number(lastRead)) {
+        setHasUnread(true);
+      }
+    }
+  }, [notifications]);
+
+  const handleOpenNotifications = (open: boolean) => {
+    setIsNotificationsOpen(open);
+    if (open && notifications && notifications.length > 0) {
+      setHasUnread(false);
+      const newestTime = new Date(notifications[0]!.submittedAt).getTime();
+      localStorage.setItem("axeform_last_read_notifications", String(newestTime));
+    }
+  };
 
   useEffect(() => {
     const storedName = localStorage.getItem("axeform_user_name");
@@ -47,11 +89,6 @@ export function Navbar({ onCreateFormClick }: NavbarProps) {
 
       {/* Center/Right side: Actions & User Menu */}
       <div className="flex items-center gap-4">
-        {/* Search Bar Metaphor - Sea Chart search */}
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-ocean-deep/60 border border-ocean-surface w-64 text-wano-cream/40">
-          <Search className="w-4 h-4 text-wano-cream/50" />
-          <span className="text-xs">Search the Grand Line...</span>
-        </div>
 
         {/* Global Create Form CTA */}
         {onCreateFormClick && (
@@ -167,14 +204,66 @@ export function Navbar({ onCreateFormClick }: NavbarProps) {
         </Dialog>
 
         {/* Notifications (Den Den Mushi style) */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-wano-cream/70 hover:text-wano-gold hover:bg-ocean-surface/50 rounded-lg relative"
-        >
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-wano-crimson animate-pulse" />
-        </Button>
+        <Popover open={isNotificationsOpen} onOpenChange={handleOpenNotifications}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-wano-cream/70 hover:text-wano-gold hover:bg-ocean-surface/50 rounded-lg relative cursor-pointer"
+            >
+              <Bell className="w-5 h-5" />
+              {hasUnread && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-wano-crimson animate-pulse" />
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="glass-panel border-wano-gold/30 bg-ocean-deep/95 text-wano-cream p-4 rounded-2xl w-80 shadow-2xl flex flex-col gap-3 z-50">
+            <div className="flex items-center justify-between border-b border-ocean-surface/30 pb-2">
+              <span className="font-heading text-xs font-bold text-wano-gold uppercase tracking-wider flex items-center gap-1.5">
+                🐌 Den Den Mushi Logs
+              </span>
+              {notifications && notifications.length > 0 && (
+                <span className="text-[10px] bg-wano-crimson/20 border border-wano-crimson/40 text-wano-crimson rounded-full px-2 py-0.5 font-bold font-mono">
+                  {notifications.length} logs
+                </span>
+              )}
+            </div>
+
+            <div className="max-h-[300px] overflow-y-auto axe-scrollbar pr-1 flex flex-col gap-2">
+              {isLoading ? (
+                <div className="py-8 text-center text-xs text-wano-cream/50 flex flex-col items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-wano-gold border-t-transparent rounded-full animate-spin" />
+                  Loading logs...
+                </div>
+              ) : !notifications || notifications.length === 0 ? (
+                <div className="py-8 text-center text-xs text-wano-cream/40 flex flex-col items-center gap-2">
+                  <span className="text-xl">🏜️</span>
+                  No submission cargo logged yet.
+                </div>
+              ) : (
+                notifications.map((notif) => (
+                  <Link
+                    key={notif.responseId}
+                    href={`/dashboard/forms/${notif.formId}/responses`}
+                    className="p-2.5 rounded-xl bg-ocean-mid/30 hover:bg-wano-crimson/10 border border-ocean-surface/40 hover:border-wano-crimson/35 transition flex flex-col gap-1 text-left group"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-[11px] font-bold text-wano-cream/90 group-hover:text-wano-gold transition-colors line-clamp-1">
+                        {notif.formTitle}
+                      </span>
+                      <span className="text-[9px] text-wano-cream/40 font-mono shrink-0 pt-0.5">
+                        {formatRelativeTime(notif.submittedAt)} ago
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-wano-cream/60 line-clamp-1 italic">
+                      New treasure logged from {notif.respondentEmail || "Anonymous Pirate"}
+                    </span>
+                  </Link>
+                ))
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
 
         {/* Divider */}
         <div className="h-6 w-[1px] bg-ocean-surface" />

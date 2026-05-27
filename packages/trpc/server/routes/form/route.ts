@@ -2469,4 +2469,22 @@ export const formRouter = router({
       await db.delete(formCollaborators).where(eq(formCollaborators.id, input.collaboratorId));
       return { success: true, message: "Collaborator removed successfully" };
     }),
+
+  getRecentNotifications: protectedProcedure
+    .input(zodUndefinedModel)
+    .query(async ({ ctx }) => {
+      return db
+        .select({
+          responseId: responses.id,
+          submittedAt: responses.submittedAt,
+          respondentEmail: responses.respondentEmail,
+          formId: forms.id,
+          formTitle: forms.title,
+        })
+        .from(responses)
+        .innerJoin(forms, eq(responses.formId, forms.id))
+        .where(eq(forms.userId, ctx.user.id))
+        .orderBy(desc(responses.submittedAt))
+        .limit(10);
+    }),
 });
