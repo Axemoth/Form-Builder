@@ -1,8 +1,45 @@
-# AxeForm
+# ⚓ AxeForm - Premium Monorepo Form Builder
 
-AxeForm is a full-stack, database-backed form builder built as a pnpm/Turborepo monorepo. It combines a Next.js frontend, an Express/tRPC backend, Drizzle ORM, PostgreSQL, Google OAuth, credential login, public form rendering, response collection, analytics, CSV export, admin tooling, and themed email notifications.
+AxeForm is an enterprise-grade, full-stack, database-backed form builder structured as a highly scalable pnpm/Turborepo monorepo. It integrates a Next.js frontend, an Express/tRPC backend, Drizzle ORM, PostgreSQL, Google OAuth, credentials authentication, dynamic visual response collection, deep analytics charts, and responsive themed notification dispatches.
 
-The project is intentionally split into apps and shared packages so the frontend, API server, database schema, authentication services, logging, and tRPC contracts can evolve independently while staying type-safe.
+---
+
+## 🔑 Live Demo & Evaluation Credentials
+
+You can interact with the live deployed production site immediately using the pre-configured credentials below:
+
+> [!IMPORTANT]
+> **Production URL**: [https://axeform.axemoth.com](https://axeform.axemoth.com)
+> * **Email Address**: `chaiforms@gmail.com`
+> * **Default Password**: `password123`
+
+---
+
+## 🚀 Recent Enterprise Engineering Enhancements
+
+The monorepo has been heavily optimized and secured with four enterprise-grade projects successfully verified and integrated:
+
+### 1. 🛡️ Hardened Dynamic Zod Validation Engine & Performance Optimizations
+*   **Database $N+1$ Query Fixes**: Added batch option loading inside `getFormBySlug` and `submitFormResponse` using Drizzle's `inArray()`, replacing looping database operations with highly efficient in-memory $O(N)$ lookup maps.
+*   **ReDoS Complexity Shield**: Built custom regex complexity checks (`isSafeRegex`) to block nested quantifiers and excessive rules, preventing catastrophic backtracking vulnerabilities. Added a 5,000-character input ceiling.
+*   **Timezone & Date Integrity**: Enforced absolute `YYYY-MM-DD` ISO-compliant validation schemas on submissions.
+*   **Cycle Dependency Engine**: Created a custom **Depth-First Search (DFS)** cycle detection check in `saveFormFields` to intercept and reject conditional validation loops before they can cause infinite cycles in the UI.
+
+### 2. 📧 End-to-End Credentials Email Verification Service
+*   **Database Extensions**: Built the `emailVerifications` database relations to safely map secure random crypto tokens to user UUIDs with customizable expirations.
+*   **Mailer Carrier**: Built `sendVerificationEmail` with clean HTML templates and a built-in sandbox logging fallback for offline inspection.
+*   **Verification Gates**: Created backend verify-email/resend mutations and built a beautiful glassmorphic dashboard notification banner to prompt unverified users.
+
+### 3. 🔒 Hybrid Email Verification Guard (Operational Gatekeeping)
+*   **Publish Protection**: Intercepts `updateForm` status transitions to block unverified users from transitioning draft forms to `"published"` status.
+*   **Collection Shielding**: Intercepts `submitFormResponse` submissions to reject dynamic response collection if the form owner has not verified their email address.
+
+### 4. 🧭 Dynamic Notifications Popover (Den Den Mushi logs)
+*   **Real-time Submissions stream**: Added a `getRecentNotifications` query to fetch recent response logs, polling automatically in the background every **15 seconds** to provide live telemetry updates!
+*   **Radix UI Dropdown Popover**: Replaced the static notification bell with a gorgeous dropdown popover featuring relative time logs (`just now`, `5m ago`, etc.) and unread badge state tracking.
+*   **Aesthetic Cleanup**: Removed the non-functional static search bar from the main navbar to optimize visual space and focus on core actions.
+
+---
 
 ## Quick Project Summary
 
