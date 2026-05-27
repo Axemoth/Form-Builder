@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -499,6 +499,12 @@ export function FormRenderer({ form, password }: FormRendererProps) {
 
   const stepsCount = visibleFields.length + (form.requireEmail ? 1 : 0);
   const safeCurrentStep = Math.min(currentStep, Math.max(0, stepsCount - 1));
+
+  const [lastStepChangeTime, setLastStepChangeTime] = useState(0);
+
+  useEffect(() => {
+    setLastStepChangeTime(Date.now());
+  }, [currentStep]);
 
   const progressPercent = form.isMultiPage
     ? stepsCount > 0
@@ -1187,7 +1193,7 @@ export function FormRenderer({ form, password }: FormRendererProps) {
           ) : (
             <Button
               type="submit"
-              disabled={isPending || form.fields.length === 0}
+              disabled={isPending || form.fields.length === 0 || (Date.now() - lastStepChangeTime < 400)}
               className={cn(
                 "transition-all duration-300",
                 isBatman
