@@ -403,9 +403,10 @@ export async function sendVerificationEmail(args: SendVerificationEmailArgs): Pr
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
   const smtpFrom = process.env.SMTP_FROM || "AxeForm <noreply@axeform.com>";
-  const baseUrl = process.env.BASE_URL || "http://localhost:8000"; // API base URL (since emails go to API or web app)
-  // Let's route verification links to the web app which points to apps/web (running on http://localhost:3000 in dev)
-  const clientUrl = process.env.NODE_ENV === "production" ? baseUrl : "http://localhost:3000";
+  const clientUrl =
+    process.env.CLIENT_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.NODE_ENV === "production" ? "https://axeform.axemoth.com" : "http://localhost:3000");
 
   const verificationUrl = `${clientUrl}/auth/verify-email?token=${args.token}`;
 
