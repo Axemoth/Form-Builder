@@ -17,6 +17,7 @@ import {
   emailLogs,
   users,
   formCollaborators,
+  sessions,
 } from "@repo/database/schema";
 import { TRPCError } from "@trpc/server";
 import crypto from "crypto";
@@ -248,6 +249,46 @@ const FieldSaveInput = z
 
 const AnswerValueInput = z.union([z.string(), z.number(), z.boolean(), z.array(z.string())]);
 
+// Collaborative Access Control Helper Function
+async function checkFormAccess(
+  formId: string,
+  userId: string,
+  requiredRole: "viewer" | "editor"
+): Promise<{ hasAccess: boolean; form?: any; collaboratorRole?: "viewer" | "editor" }> {
+  // 1. Fetch form
+  const [form] = await db.select().from(forms).where(eq(forms.id, formId));
+  if (!form) {
+    return { hasAccess: false };
+  }
+
+  // 2. Owner bypass (always has full editor access)
+  if (form.userId === userId) {
+    return { hasAccess: true, form };
+  }
+
+  // 3. Query collaborator table
+  const [collab] = await db
+    .select()
+    .from(formCollaborators)
+    .where(
+      and(
+        eq(formCollaborators.formId, formId),
+        eq(formCollaborators.userId, userId)
+      )
+    );
+
+  if (!collab) {
+    return { hasAccess: false, form };
+  }
+
+  // If requiredRole is "editor", collaborator must be "editor"
+  if (requiredRole === "editor" && collab.role !== "editor") {
+    return { hasAccess: false, form, collaboratorRole: collab.role as "viewer" | "editor" };
+  }
+
+  return { hasAccess: true, form, collaboratorRole: collab.role as "viewer" | "editor" };
+}
+
 export const formRouter = router({
   // 1. Create a Form
   createForm: protectedProcedure
@@ -337,8 +378,8 @@ export const formRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      // Validate form exists and belongs to user
-      const [form] = await db.select().from(forms).where(eq(forms.id, input.id));
+      // Validate form exists and check access permissions
+      const { hasAccess, form } = await checkFormAccess(input.id, ctx.user.id, "editor");
       if (!form) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -346,7 +387,7 @@ export const formRouter = router({
         });
       }
 
-      if (form.userId !== ctx.user.id) {
+      if (!hasAccess) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You do not have permission to update this form",
@@ -426,8 +467,8 @@ export const formRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      // Validate form exists and belongs to user
-      const [form] = await db.select().from(forms).where(eq(forms.id, input.formId));
+      // Validate form exists and check access permissions
+      const { hasAccess, form } = await checkFormAccess(input.formId, ctx.user.id, "editor");
       if (!form) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -435,7 +476,7 @@ export const formRouter = router({
         });
       }
 
-      if (form.userId !== ctx.user.id) {
+      if (!hasAccess) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You do not have permission to modify this form's fields",
@@ -481,8 +522,23 @@ export const formRouter = router({
           };
 
           if (fieldId) {
-            // Update
-            await tx.update(fields).set(valuesToSet).where(eq(fields.id, fieldId));
+            // Update: Verify the field belongs to this form before updating
+            const [existingField] = await tx
+              .select()
+              .from(fields)
+              .where(and(eq(fields.id, fieldId), eq(fields.formId, input.formId)));
+
+            if (!existingField) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: `Field ID ${fieldId} does not belong to the target form.`,
+              });
+            }
+
+            await tx
+              .update(fields)
+              .set(valuesToSet)
+              .where(and(eq(fields.id, fieldId), eq(fields.formId, input.formId)));
           } else {
             // Insert
             const [newField] = await tx.insert(fields).values(valuesToSet).returning();
@@ -637,7 +693,7 @@ export const formRouter = router({
         ),
       }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       // Fetch form
       const [form] = await db.select().from(forms).where(eq(forms.slug, input.slug));
       if (!form) {
@@ -655,6 +711,46 @@ export const formRouter = router({
       const notifyRespondent = notifSettings?.notifyRespondent ?? false;
 
       // Check draft / preview / unpublished permissions
+      if (input.isPreview) {
+        if (!ctx.token) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Authentication session token is missing. Please log in first.",
+          });
+        }
+        const [session] = await db.select().from(sessions).where(eq(sessions.token, ctx.token));
+        if (!session || new Date() > session.expiresAt) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Invalid or expired session token.",
+          });
+        }
+        const [user] = await db.select().from(users).where(eq(users.id, session.userId));
+        if (!user) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "User not found.",
+          });
+        }
+        const isOwner = form.userId === user.id;
+        const [collab] = await db
+          .select()
+          .from(formCollaborators)
+          .where(
+            and(
+              eq(formCollaborators.formId, form.id),
+              eq(formCollaborators.userId, user.id)
+            )
+          );
+
+        if (!isOwner && !collab) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You do not have permission to preview this form.",
+          });
+        }
+      }
+
       if (form.status === "draft" && !input.isPreview) {
         throw new TRPCError({
           code: "FORBIDDEN",
@@ -929,6 +1025,13 @@ export const formRouter = router({
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Submissions rejected: this form has expired",
+        });
+      }
+
+      if (form.isArchived) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Form has been archived and is no longer accepting responses",
         });
       }
 
@@ -1422,8 +1525,8 @@ export const formRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      // Validate form exists and belongs to user
-      const [form] = await db.select().from(forms).where(eq(forms.id, input.formId));
+      // Validate form exists and check access permissions (Viewer or Editor allowed)
+      const { hasAccess, form } = await checkFormAccess(input.formId, ctx.user.id, "viewer");
       if (!form) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -1431,7 +1534,7 @@ export const formRouter = router({
         });
       }
 
-      if (form.userId !== ctx.user.id) {
+      if (!hasAccess) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You do not have permission to view this form's responses",
@@ -1514,8 +1617,8 @@ export const formRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      // Load form and dynamic fields
-      const [form] = await db.select().from(forms).where(eq(forms.id, input.formId));
+      // Validate form exists and check access permissions (Viewer or Editor allowed)
+      const { hasAccess, form } = await checkFormAccess(input.formId, ctx.user.id, "viewer");
       if (!form) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -1523,7 +1626,7 @@ export const formRouter = router({
         });
       }
 
-      if (form.userId !== ctx.user.id) {
+      if (!hasAccess) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You do not have permission to export responses for this form",
@@ -1619,8 +1722,8 @@ export const formRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      // Validate form exists and belongs to user
-      const [form] = await db.select().from(forms).where(eq(forms.id, input.formId));
+      // Validate form exists and check access permissions (Viewer or Editor allowed)
+      const { hasAccess, form } = await checkFormAccess(input.formId, ctx.user.id, "viewer");
       if (!form) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -1628,7 +1731,7 @@ export const formRouter = router({
         });
       }
 
-      if (form.userId !== ctx.user.id) {
+      if (!hasAccess) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You do not have permission to view this form's analytics",
@@ -1787,8 +1890,9 @@ export const formRouter = router({
       }),
     )
     .query(async ({ input }) => {
-      // Dynamic public QR Server image API with proper dimensions & redirection parameters
-      const shareUrl = `https://local.drizzle.studio/form/${input.slug}`;
+      // Dynamic public QR Server image API with proper dimensions & redirection parameters targeting client domain
+      const clientUrl = process.env.NODE_ENV === "production" ? "https://axeform.axemoth.com" : "http://localhost:3000";
+      const shareUrl = `${clientUrl}/f/${input.slug}`;
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
         shareUrl,
       )}`;
@@ -1901,7 +2005,8 @@ export const formRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const [form] = await db.select().from(forms).where(eq(forms.id, input.formId));
+      // Validate form exists and check access permissions (Editor required)
+      const { hasAccess, form } = await checkFormAccess(input.formId, ctx.user.id, "editor");
       if (!form) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -1909,7 +2014,7 @@ export const formRouter = router({
         });
       }
 
-      if (form.userId !== ctx.user.id) {
+      if (!hasAccess) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You do not have permission to manage notification settings for this form",
@@ -1965,7 +2070,8 @@ export const formRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      const [form] = await db.select().from(forms).where(eq(forms.id, input.formId));
+      // Validate form exists and check access permissions (Viewer or Editor allowed)
+      const { hasAccess, form } = await checkFormAccess(input.formId, ctx.user.id, "viewer");
       if (!form) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -1973,7 +2079,7 @@ export const formRouter = router({
         });
       }
 
-      if (form.userId !== ctx.user.id) {
+      if (!hasAccess) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You do not have permission to view notification settings for this form",
@@ -2056,8 +2162,8 @@ export const formRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      // Fetch form
-      const [form] = await db.select().from(forms).where(eq(forms.id, input.id));
+      // Validate form exists and check access permissions (Viewer or Editor allowed)
+      const { hasAccess, form } = await checkFormAccess(input.id, ctx.user.id, "viewer");
       if (!form) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -2065,7 +2171,7 @@ export const formRouter = router({
         });
       }
 
-      if (form.userId !== ctx.user.id) {
+      if (!hasAccess) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You do not have permission to view this form",
@@ -2242,11 +2348,11 @@ export const formRouter = router({
     .input(z.object({ id: z.string().uuid() }))
     .output(z.object({ success: z.boolean(), message: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const [form] = await db.select().from(forms).where(eq(forms.id, input.id));
+      const { hasAccess, form } = await checkFormAccess(input.id, ctx.user.id, "editor");
       if (!form) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Form not found" });
       }
-      if (form.userId !== ctx.user.id) {
+      if (!hasAccess) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Forbidden" });
       }
       await db.update(forms).set({ isArchived: true }).where(eq(forms.id, input.id));
@@ -2259,11 +2365,11 @@ export const formRouter = router({
     .input(z.object({ id: z.string().uuid() }))
     .output(z.object({ success: z.boolean(), message: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const [form] = await db.select().from(forms).where(eq(forms.id, input.id));
+      const { hasAccess, form } = await checkFormAccess(input.id, ctx.user.id, "editor");
       if (!form) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Form not found" });
       }
-      if (form.userId !== ctx.user.id) {
+      if (!hasAccess) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Forbidden" });
       }
       await db.update(forms).set({ isArchived: false }).where(eq(forms.id, input.id));
@@ -2283,12 +2389,12 @@ export const formRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      // 1. Fetch original form
-      const [form] = await db.select().from(forms).where(eq(forms.id, input.id));
+      // 1. Fetch original form and check access (Viewer or Editor allowed to clone)
+      const { hasAccess, form } = await checkFormAccess(input.id, ctx.user.id, "viewer");
       if (!form) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Form not found" });
       }
-      if (form.userId !== ctx.user.id) {
+      if (!hasAccess) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Forbidden" });
       }
 
