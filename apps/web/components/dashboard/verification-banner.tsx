@@ -18,7 +18,7 @@ export function VerificationBanner() {
     if (cooldown > 0) return;
 
     try {
-      const result = await resendMutation.mutateAsync();
+      const result = await resendMutation.mutateAsync(undefined);
       if (result.success) {
         toast.success("Verification News Coo bird dispatched! Check your sandbox inbox.");
         setCooldown(60);
