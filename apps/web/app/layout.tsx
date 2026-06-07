@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Serif_JP, Inter } from "next/font/google";
 import "./globals.css";
 import { GlobalProviders } from "~/providers/global";
+import { Analytics } from "@vercel/analytics/next";
 
 const notoSerifJP = Noto_Serif_JP({
   subsets: ["latin"],
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${notoSerifJP.variable} ${inter.variable} antialiased`}>
         <GlobalProviders>{children}</GlobalProviders>
+        <Analytics />
       </body>
     </html>
   );
