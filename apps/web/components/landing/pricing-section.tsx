@@ -73,8 +73,7 @@ export function PricingSection() {
           Choose Your <span className="text-gradient-gold">Plan</span>
         </h2>
         <p className="text-wano-cream/60 text-lg max-w-2xl mx-auto">
-          Every growing team needs the right tools. Pick the plan that matches your
-          ambitions.
+          Every growing team needs the right tools. Pick the plan that matches your ambitions.
         </p>
 
         {/* Billing Toggle */}

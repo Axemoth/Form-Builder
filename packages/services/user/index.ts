@@ -68,11 +68,12 @@ class UserService {
     let [user] = await db.select().from(usersTable).where(eq(usersTable.googleId, profile.sub));
 
     if (!user) {
+      const normalizedGoogleEmail = profile.email.toLowerCase();
       // If not found, try to find by email
       const [existingUserByEmail] = await db
         .select()
         .from(usersTable)
-        .where(eq(usersTable.email, profile.email));
+        .where(eq(usersTable.email, normalizedGoogleEmail));
 
       if (existingUserByEmail) {
         // Link googleId to existing user
@@ -97,7 +98,7 @@ class UserService {
         const [newUser] = await db
           .insert(usersTable)
           .values({
-            email: profile.email,
+            email: normalizedGoogleEmail,
             name: profile.name || "Google User",
             avatar: profile.picture || null,
             googleId: profile.sub,
@@ -139,8 +140,12 @@ class UserService {
   }
 
   public async signupWithCredentials(name: string, email: string, password: string) {
+    const normalizedEmail = email.toLowerCase();
     // Check if user already exists
-    const [existingUser] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+    const [existingUser] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, normalizedEmail));
 
     if (existingUser) {
       throw new Error("An account with this email already exists. Try signing in instead.");
@@ -158,7 +163,7 @@ class UserService {
     const [newUser] = await db
       .insert(usersTable)
       .values({
-        email,
+        email: normalizedEmail,
         name,
         passwordHash,
         emailVerified: false,
@@ -193,8 +198,9 @@ class UserService {
   }
 
   public async loginWithCredentials(email: string, password: string) {
+    const normalizedEmail = email.toLowerCase();
     // Find user by email
-    const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.email, normalizedEmail));
 
     if (!user) {
       throw new Error("Invalid email or password.");

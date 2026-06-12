@@ -188,10 +188,7 @@ export const authRouter = router({
       }),
     )
     .query(async ({ ctx }) => {
-      const [userRecord] = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, ctx.user.id));
+      const [userRecord] = await db.select().from(users).where(eq(users.id, ctx.user.id));
 
       if (!userRecord) {
         throw new TRPCError({

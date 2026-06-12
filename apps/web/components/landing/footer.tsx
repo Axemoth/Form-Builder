@@ -56,8 +56,8 @@ export function Footer() {
             <span className="font-heading text-2xl font-bold text-gradient-gold">AxeForm</span>
           </Link>
           <p className="text-wano-cream/50 text-sm max-w-sm mt-2 leading-relaxed">
-            The ultimate modern form builder SaaS. Customize field types with powerful options,
-            add password protection, and navigate stats with built-in analytics.
+            The ultimate modern form builder SaaS. Customize field types with powerful options, add
+            password protection, and navigate stats with built-in analytics.
           </p>
         </div>
 

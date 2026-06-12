@@ -42,8 +42,8 @@ export function HeroSection() {
         <p className="text-wano-cream/75 text-base sm:text-lg md:text-xl max-w-3xl mt-8 leading-relaxed font-light">
           <strong>AxeForm</strong> is a powerful, dynamic drag-and-drop form builder. Create elegant
           surveys, secure your inputs with password protection, and export actionable insights with
-          real-time analytics — all with a stunning visual experience. Customize field types,
-          add password protection, and track performance with built-in analytics.
+          real-time analytics — all with a stunning visual experience. Customize field types, add
+          password protection, and track performance with built-in analytics.
         </p>
 
         {/* Actions CTAs */}

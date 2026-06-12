@@ -158,20 +158,27 @@ export function FormRenderer({ form, password }: FormRendererProps) {
       case "number": {
         const bounds = field.validations;
 
-        const numSchema = z.number()
+        const numSchema = z
+          .number()
           .refine((val) => !isNaN(val), { message: "Must be a number." })
-          .refine((val) => {
-            if (bounds && typeof bounds.min === "number") {
-              return val >= bounds.min;
-            }
-            return true;
-          }, { message: `Value must be at least ${bounds?.min}.` })
-          .refine((val) => {
-            if (bounds && typeof bounds.max === "number") {
-              return val <= bounds.max;
-            }
-            return true;
-          }, { message: `Value cannot exceed ${bounds?.max}.` });
+          .refine(
+            (val) => {
+              if (bounds && typeof bounds.min === "number") {
+                return val >= bounds.min;
+              }
+              return true;
+            },
+            { message: `Value must be at least ${bounds?.min}.` },
+          )
+          .refine(
+            (val) => {
+              if (bounds && typeof bounds.max === "number") {
+                return val <= bounds.max;
+              }
+              return true;
+            },
+            { message: `Value cannot exceed ${bounds?.max}.` },
+          );
 
         schema = z.preprocess(
           (val) => {
@@ -371,7 +378,7 @@ export function FormRenderer({ form, password }: FormRendererProps) {
             themeName={themeName}
             error={errors[field.id]?.message as string}
             value={val || ""}
-            onChange={onChange}
+            onChange={(e) => onChange(e.target.value.toLowerCase())}
             onBlur={onBlur}
           />
         );
@@ -1002,7 +1009,11 @@ export function FormRenderer({ form, password }: FormRendererProps) {
                         ? "e.g. tony@starkindustries.com"
                         : "e.g. luffy@thousandsunny.com"
                   }
-                  {...register("respondentEmail")}
+                  {...register("respondentEmail", {
+                    onChange: (e) => {
+                      e.target.value = e.target.value.toLowerCase();
+                    },
+                  })}
                 />
               </div>
             ) : (
@@ -1131,7 +1142,11 @@ export function FormRenderer({ form, password }: FormRendererProps) {
                       ? "e.g. tony@starkindustries.com"
                       : "e.g. luffy@thousandsunny.com"
                 }
-                {...register("respondentEmail")}
+                {...register("respondentEmail", {
+                  onChange: (e) => {
+                    e.target.value = e.target.value.toLowerCase();
+                  },
+                })}
               />
             </div>
           )}
@@ -1193,7 +1208,9 @@ export function FormRenderer({ form, password }: FormRendererProps) {
           ) : (
             <Button
               type="submit"
-              disabled={isPending || form.fields.length === 0 || (Date.now() - lastStepChangeTime < 400)}
+              disabled={
+                isPending || form.fields.length === 0 || Date.now() - lastStepChangeTime < 400
+              }
               className={cn(
                 "transition-all duration-300",
                 isBatman

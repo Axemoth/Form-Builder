@@ -89,7 +89,10 @@ function VerifyEmailContent() {
           <div className="py-10 space-y-6 flex flex-col items-center animate-scale-in">
             <div className="relative w-24 h-24 flex items-center justify-center">
               <div className="absolute inset-0 bg-fruit-glow/10 rounded-full blur-xl animate-pulse pointer-events-none" />
-              <div className="absolute -inset-2 bg-gradient-to-tr from-wano-crimson to-wano-gold rounded-full opacity-10 animate-spin" style={{ animationDuration: "8s" }} />
+              <div
+                className="absolute -inset-2 bg-gradient-to-tr from-wano-crimson to-wano-gold rounded-full opacity-10 animate-spin"
+                style={{ animationDuration: "8s" }}
+              />
               <div className="relative z-10 animate-bounce" style={{ animationDuration: "3s" }}>
                 <CheckCircle2 className="w-16 h-16 text-fruit-glow stroke-[1.5]" />
                 <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-wano-gold animate-pulse" />
@@ -100,7 +103,8 @@ function VerifyEmailContent() {
                 Coordinates Verified!
               </h2>
               <p className="text-sm text-wano-cream/70 max-w-xs mx-auto leading-relaxed font-sans">
-                Your email has been successfully verified. Prepare your ship, we are redirecting you to your main cabin coordinates...
+                Your email has been successfully verified. Prepare your ship, we are redirecting you
+                to your main cabin coordinates...
               </p>
             </div>
             <div className="pt-2 animate-pulse">
@@ -152,14 +156,16 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-[#060b13] flex items-center justify-center p-6 text-wano-cream font-sans">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-12 h-12 text-wano-gold animate-spin mx-auto" />
-          <p className="text-sm text-wano-cream/60">Loading Navigation HUD...</p>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#060b13] flex items-center justify-center p-6 text-wano-cream font-sans">
+          <div className="text-center space-y-4">
+            <Loader2 className="w-12 h-12 text-wano-gold animate-spin mx-auto" />
+            <p className="text-sm text-wano-cream/60">Loading Navigation HUD...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <VerifyEmailContent />
     </Suspense>
   );

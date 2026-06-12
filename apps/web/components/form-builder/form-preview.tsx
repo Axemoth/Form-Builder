@@ -209,7 +209,10 @@ export function FormPreview({
                     themeName={themeName}
                     value={mockValues[fieldId] || ""}
                     onChange={(e) =>
-                      setMockValues((prev) => ({ ...prev, [fieldId]: e.target.value }))
+                      setMockValues((prev) => ({
+                        ...prev,
+                        [fieldId]: e.target.value.toLowerCase(),
+                      }))
                     }
                   />
                 )}

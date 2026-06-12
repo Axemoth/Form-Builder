@@ -22,7 +22,7 @@ export function VerificationBanner() {
       if (result.success) {
         toast.success("Verification News Coo bird dispatched! Check your sandbox inbox.");
         setCooldown(60);
-        
+
         // Cooldown timer countdown
         const interval = setInterval(() => {
           setCooldown((prev) => {
@@ -62,7 +62,10 @@ export function VerificationBanner() {
             <Sparkles className="w-3.5 h-3.5 text-wano-gold animate-pulse" />
           </h4>
           <p className="text-xs text-wano-cream/65 leading-relaxed max-w-xl">
-            Your pirate coordinates are not verified yet. To unlock complete platform navigation rights (such as publishing surveys and downloading visual response statistics), please confirm the link dispatched to <strong className="text-wano-gold">{userProfile.email}</strong>.
+            Your pirate coordinates are not verified yet. To unlock complete platform navigation
+            rights (such as publishing surveys and downloading visual response statistics), please
+            confirm the link dispatched to{" "}
+            <strong className="text-wano-gold">{userProfile.email}</strong>.
           </p>
         </div>
       </div>

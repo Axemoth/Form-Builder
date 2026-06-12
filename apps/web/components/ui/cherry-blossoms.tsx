@@ -114,7 +114,6 @@ export function CherryBlossoms({ intensity = "normal", className }: CherryBlosso
         className,
       )}
     >
-
       {/* Conqueror's Haki Lightning Bolts — brief crackling flashes */}
       {hakiLightning.map((bolt) => (
         <svg
@@ -127,7 +126,9 @@ export function CherryBlossoms({ intensity = "normal", className }: CherryBlosso
           <path
             d="M 20,0 L 14,28 L 22,32 L 12,60 L 18,62 L 8,95 L 28,55 L 20,52 L 28,28 L 20,24 Z"
             className="fill-white/80"
-            style={{ animation: `haki-lightning-flash ${bolt.style.animationDuration} ease-in-out ${bolt.style.animationDelay} infinite` }}
+            style={{
+              animation: `haki-lightning-flash ${bolt.style.animationDuration} ease-in-out ${bolt.style.animationDelay} infinite`,
+            }}
           />
         </svg>
       ))}
@@ -155,4 +156,3 @@ export function CherryBlossoms({ intensity = "normal", className }: CherryBlosso
     </div>
   );
 }
-

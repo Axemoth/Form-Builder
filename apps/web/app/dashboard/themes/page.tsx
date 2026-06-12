@@ -115,7 +115,8 @@ export default function ThemeGalleryPage() {
               "rounded-3xl border-2 p-6 flex flex-col justify-between relative overflow-hidden transition-all duration-300 group hover:scale-[1.01] hover:shadow-[0_15px_40px_rgba(0,0,0,0.5)] min-h-[560px]",
               theme.borderClass,
               theme.bgClass,
-              theme.id === "wano" && "animate-drums-beat shadow-[0_0_25px_rgba(255,255,255,0.08)] hover:shadow-[0_0_35px_rgba(255,255,255,0.2)]",
+              theme.id === "wano" &&
+                "animate-drums-beat shadow-[0_0_25px_rgba(255,255,255,0.08)] hover:shadow-[0_0_35px_rgba(255,255,255,0.2)]",
             )}
           >
             {/* Background absolute visuals */}

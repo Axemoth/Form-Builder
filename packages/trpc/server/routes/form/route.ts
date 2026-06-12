@@ -65,8 +65,8 @@ function isSafeRegex(pattern: string): boolean {
   if (groupWithAlternativesRegex.test(pattern)) {
     const inside = pattern.match(/\(([^)]+)\)/);
     if (inside && inside[1]) {
-      const parts = inside[1].split('|');
-      const hasQuantifier = parts.some(p => /[*+?]/.test(p));
+      const parts = inside[1].split("|");
+      const hasQuantifier = parts.some((p) => /[*+?]/.test(p));
       const hasDuplicates = new Set(parts).size !== parts.length;
       if (hasQuantifier || hasDuplicates) {
         return false;
@@ -253,7 +253,7 @@ const AnswerValueInput = z.union([z.string(), z.number(), z.boolean(), z.array(z
 async function checkFormAccess(
   formId: string,
   userId: string,
-  requiredRole: "viewer" | "editor"
+  requiredRole: "viewer" | "editor",
 ): Promise<{ hasAccess: boolean; form?: any; collaboratorRole?: "viewer" | "editor" }> {
   // 1. Fetch form
   const [form] = await db.select().from(forms).where(eq(forms.id, formId));
@@ -270,12 +270,7 @@ async function checkFormAccess(
   const [collab] = await db
     .select()
     .from(formCollaborators)
-    .where(
-      and(
-        eq(formCollaborators.formId, formId),
-        eq(formCollaborators.userId, userId)
-      )
-    );
+    .where(and(eq(formCollaborators.formId, formId), eq(formCollaborators.userId, userId)));
 
   if (!collab) {
     return { hasAccess: false, form };
@@ -736,12 +731,7 @@ export const formRouter = router({
         const [collab] = await db
           .select()
           .from(formCollaborators)
-          .where(
-            and(
-              eq(formCollaborators.formId, form.id),
-              eq(formCollaborators.userId, user.id)
-            )
-          );
+          .where(and(eq(formCollaborators.formId, form.id), eq(formCollaborators.userId, user.id)));
 
         if (!isOwner && !collab) {
           throw new TRPCError({
@@ -820,22 +810,25 @@ export const formRouter = router({
             .where(inArray(fieldOptions.fieldId, fieldIds))
             .orderBy(fieldOptions.order);
 
-          const optionsByFieldId = allOptions.reduce((acc, opt) => {
-            if (opt.fieldId) {
-              let list = acc[opt.fieldId];
-              if (!list) {
-                list = [];
-                acc[opt.fieldId] = list;
+          const optionsByFieldId = allOptions.reduce(
+            (acc, opt) => {
+              if (opt.fieldId) {
+                let list = acc[opt.fieldId];
+                if (!list) {
+                  list = [];
+                  acc[opt.fieldId] = list;
+                }
+                list.push({
+                  id: opt.id,
+                  label: opt.label,
+                  value: opt.value,
+                  order: opt.order,
+                });
               }
-              list.push({
-                id: opt.id,
-                label: opt.label,
-                value: opt.value,
-                order: opt.order,
-              });
-            }
-            return acc;
-          }, {} as Record<string, any[]>);
+              return acc;
+            },
+            {} as Record<string, any[]>,
+          );
 
           for (const f of dbFields) {
             const dbOptions = optionsByFieldId[f.id] || [];
@@ -1075,13 +1068,16 @@ export const formRouter = router({
         : typeof xForwardedFor === "string"
           ? xForwardedFor.split(",")[0]?.trim()
           : ctx.req.socket.remoteAddress || "unknown-ip";
-      
-      const secureIpHash = crypto.createHash("sha256").update(clientIp || "").digest("hex");
+
+      const secureIpHash = crypto
+        .createHash("sha256")
+        .update(clientIp || "")
+        .digest("hex");
 
       // Enforce allowMultipleResponses Check (Audit Item 1)
       if (!form.allowMultipleResponses) {
         const existingConditions = [eq(responses.formId, form.id)];
-        
+
         if (form.requireEmail && input.respondentEmail) {
           existingConditions.push(eq(responses.respondentEmail, input.respondentEmail));
         } else {
@@ -1124,24 +1120,28 @@ export const formRouter = router({
       }
 
       // Map options by field ID for O(1) in-memory lookup
-      const optionsByFieldMap = allOptions.reduce((acc, opt) => {
-        if (opt.fieldId) {
-          let fieldSet = acc[opt.fieldId];
-          if (!fieldSet) {
-            fieldSet = new Set<string>();
-            acc[opt.fieldId] = fieldSet;
+      const optionsByFieldMap = allOptions.reduce(
+        (acc, opt) => {
+          if (opt.fieldId) {
+            let fieldSet = acc[opt.fieldId];
+            if (!fieldSet) {
+              fieldSet = new Set<string>();
+              acc[opt.fieldId] = fieldSet;
+            }
+            fieldSet.add(opt.value);
           }
-          fieldSet.add(opt.value);
-        }
-        return acc;
-      }, {} as Record<string, Set<string>>);
+          return acc;
+        },
+        {} as Record<string, Set<string>>,
+      );
 
       // Hybrid Guard: Reject public submissions if form owner is unverified
       const [owner] = await db.select().from(users).where(eq(users.id, form.userId));
       if (!owner || !owner.emailVerified) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Submissions rejected: The form creator's email address is currently unverified.",
+          message:
+            "Submissions rejected: The form creator's email address is currently unverified.",
         });
       }
 
@@ -1318,7 +1318,9 @@ export const formRouter = router({
 
             const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
             if (!isoDatePattern.test(value) || isNaN(Date.parse(value))) {
-              validationErrors.push(`Field "${field.label}" must be a valid date in YYYY-MM-DD format.`);
+              validationErrors.push(
+                `Field "${field.label}" must be a valid date in YYYY-MM-DD format.`,
+              );
             } else {
               validatedAnswers.push({ fieldId: field.id, value });
             }
@@ -1891,7 +1893,10 @@ export const formRouter = router({
     )
     .query(async ({ input }) => {
       // Dynamic public QR Server image API with proper dimensions & redirection parameters targeting client domain
-      const clientUrl = process.env.NODE_ENV === "production" ? "https://axeform.axemoth.com" : "http://localhost:3000";
+      const clientUrl =
+        process.env.NODE_ENV === "production"
+          ? "https://axeform.axemoth.com"
+          : "http://localhost:3000";
       const shareUrl = `${clientUrl}/f/${input.slug}`;
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
         shareUrl,
@@ -2508,7 +2513,8 @@ export const formRouter = router({
     .query(async ({ input, ctx }) => {
       const [form] = await db.select().from(forms).where(eq(forms.id, input.formId));
       if (!form) throw new TRPCError({ code: "NOT_FOUND", message: "Form not found" });
-      if (form.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN", message: "Forbidden" });
+      if (form.userId !== ctx.user.id)
+        throw new TRPCError({ code: "FORBIDDEN", message: "Forbidden" });
 
       return db
         .select({
@@ -2538,21 +2544,32 @@ export const formRouter = router({
     .mutation(async ({ input, ctx }) => {
       const [form] = await db.select().from(forms).where(eq(forms.id, input.formId));
       if (!form) throw new TRPCError({ code: "NOT_FOUND", message: "Form not found" });
-      if (form.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN", message: "Forbidden" });
+      if (form.userId !== ctx.user.id)
+        throw new TRPCError({ code: "FORBIDDEN", message: "Forbidden" });
 
       const [invitedUser] = await db.select().from(users).where(eq(users.email, input.email));
-      if (!invitedUser) throw new TRPCError({ code: "NOT_FOUND", message: "User not found with this email" });
+      if (!invitedUser)
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found with this email" });
 
       if (invitedUser.id === ctx.user.id) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "You cannot add yourself as a collaborator" });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You cannot add yourself as a collaborator",
+        });
       }
 
       // Check if already a collaborator
       const [existing] = await db
         .select()
         .from(formCollaborators)
-        .where(and(eq(formCollaborators.formId, input.formId), eq(formCollaborators.userId, invitedUser.id)));
-      if (existing) throw new TRPCError({ code: "BAD_REQUEST", message: "User is already a collaborator" });
+        .where(
+          and(
+            eq(formCollaborators.formId, input.formId),
+            eq(formCollaborators.userId, invitedUser.id),
+          ),
+        );
+      if (existing)
+        throw new TRPCError({ code: "BAD_REQUEST", message: "User is already a collaborator" });
 
       await db.insert(formCollaborators).values({
         formId: input.formId,
@@ -2566,31 +2583,34 @@ export const formRouter = router({
   removeFormCollaborator: protectedProcedure
     .input(z.object({ collaboratorId: z.string().uuid() }))
     .mutation(async ({ input, ctx }) => {
-      const [collab] = await db.select().from(formCollaborators).where(eq(formCollaborators.id, input.collaboratorId));
-      if (!collab) throw new TRPCError({ code: "NOT_FOUND", message: "Collaborator entry not found" });
+      const [collab] = await db
+        .select()
+        .from(formCollaborators)
+        .where(eq(formCollaborators.id, input.collaboratorId));
+      if (!collab)
+        throw new TRPCError({ code: "NOT_FOUND", message: "Collaborator entry not found" });
 
       const [form] = await db.select().from(forms).where(eq(forms.id, collab.formId));
-      if (!form || form.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN", message: "Forbidden" });
+      if (!form || form.userId !== ctx.user.id)
+        throw new TRPCError({ code: "FORBIDDEN", message: "Forbidden" });
 
       await db.delete(formCollaborators).where(eq(formCollaborators.id, input.collaboratorId));
       return { success: true, message: "Collaborator removed successfully" };
     }),
 
-  getRecentNotifications: protectedProcedure
-    .input(zodUndefinedModel)
-    .query(async ({ ctx }) => {
-      return db
-        .select({
-          responseId: responses.id,
-          submittedAt: responses.submittedAt,
-          respondentEmail: responses.respondentEmail,
-          formId: forms.id,
-          formTitle: forms.title,
-        })
-        .from(responses)
-        .innerJoin(forms, eq(responses.formId, forms.id))
-        .where(eq(forms.userId, ctx.user.id))
-        .orderBy(desc(responses.submittedAt))
-        .limit(10);
-    }),
+  getRecentNotifications: protectedProcedure.input(zodUndefinedModel).query(async ({ ctx }) => {
+    return db
+      .select({
+        responseId: responses.id,
+        submittedAt: responses.submittedAt,
+        respondentEmail: responses.respondentEmail,
+        formId: forms.id,
+        formTitle: forms.title,
+      })
+      .from(responses)
+      .innerJoin(forms, eq(responses.formId, forms.id))
+      .where(eq(forms.userId, ctx.user.id))
+      .orderBy(desc(responses.submittedAt))
+      .limit(10);
+  }),
 });

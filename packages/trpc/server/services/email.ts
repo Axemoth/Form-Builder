@@ -406,7 +406,9 @@ export async function sendVerificationEmail(args: SendVerificationEmailArgs): Pr
   const clientUrl =
     process.env.CLIENT_URL ||
     process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://axeform.axemoth.com");
+    (process.env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : "https://axeform.axemoth.com");
 
   const verificationUrl = `${clientUrl}/auth/verify-email?token=${args.token}`;
 

@@ -8,7 +8,19 @@ import { StatsCard } from "~/components/dashboard/stats-card";
 import { FormCard } from "~/components/dashboard/form-card";
 import { CreateFormDialog } from "~/components/dashboard/create-form-dialog";
 import { VerificationBanner } from "~/components/dashboard/verification-banner";
-import { Anchor, Compass, Plus, Loader2, FolderOpen, TrendingUp, Map, Search, Archive, ShieldAlert, Lock } from "lucide-react";
+import {
+  Anchor,
+  Compass,
+  Plus,
+  Loader2,
+  FolderOpen,
+  TrendingUp,
+  Map,
+  Search,
+  Archive,
+  ShieldAlert,
+  Lock,
+} from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
@@ -44,16 +56,22 @@ export default function DashboardPage() {
 
   // Calculate actual user statistics dynamically from active/archived data
   const totalResponses = forms.reduce((acc, form) => acc + form.responseCount, 0);
-  
+
   // Card 3 Value: count of published forms (active) or draft forms (archived)
-  const card3Value = viewMode === "active" 
-    ? forms.filter((f) => f.status === "published").length 
-    : forms.filter((f) => f.status === "draft").length;
+  const card3Value =
+    viewMode === "active"
+      ? forms.filter((f) => f.status === "published").length
+      : forms.filter((f) => f.status === "draft").length;
 
   // Card 4 Value: active routes ratio (active) or closed islands ratio (archived)
-  const card4Value = viewMode === "active"
-    ? (totalForms > 0 ? `${Math.round((forms.filter((f) => f.status === "published").length / totalForms) * 100)}%` : "0%")
-    : (totalForms > 0 ? `${Math.round((forms.filter((f) => f.status === "unpublished").length / totalForms) * 100)}%` : "0%");
+  const card4Value =
+    viewMode === "active"
+      ? totalForms > 0
+        ? `${Math.round((forms.filter((f) => f.status === "published").length / totalForms) * 100)}%`
+        : "0%"
+      : totalForms > 0
+        ? `${Math.round((forms.filter((f) => f.status === "unpublished").length / totalForms) * 100)}%`
+        : "0%";
 
   return (
     <div className="space-y-8">
@@ -81,13 +99,17 @@ export default function DashboardPage() {
           title={viewMode === "active" ? "Total Active Forms" : "Total Archived Forms"}
           value={isLoading ? "..." : totalForms}
           icon={viewMode === "active" ? Map : Archive}
-          description={viewMode === "active" ? "Charted Active Islands" : "Archived/Preserved Islands"}
+          description={
+            viewMode === "active" ? "Charted Active Islands" : "Archived/Preserved Islands"
+          }
         />
         <StatsCard
           title={viewMode === "active" ? "Total Answers Collected" : "Archived Answers Preserved"}
           value={isLoading ? "..." : totalResponses}
           icon={viewMode === "active" ? Anchor : ShieldAlert}
-          description={viewMode === "active" ? "Active Treasures Discovered" : "Treasures Locked in Vault"}
+          description={
+            viewMode === "active" ? "Active Treasures Discovered" : "Treasures Locked in Vault"
+          }
         />
         <StatsCard
           title={viewMode === "active" ? "Published Forms Live" : "Draft Archived Forms"}

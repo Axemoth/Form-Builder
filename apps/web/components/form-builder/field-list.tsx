@@ -190,9 +190,7 @@ export function FieldList({ fields, onFieldsChange }: FieldListProps) {
           <Compass className="w-4 h-4" />
           Form Fields ({fields.length})
         </h3>
-        <span className="text-[10px] text-wano-cream/40 font-mono">
-          Drag to reorder
-        </span>
+        <span className="text-[10px] text-wano-cream/40 font-mono">Drag to reorder</span>
       </div>
 
       {/* Field Cards render loops */}
@@ -290,8 +288,7 @@ export function FieldList({ fields, onFieldsChange }: FieldListProps) {
           <div className="flex flex-col items-center justify-center py-16 bg-ocean-mid/10 rounded-xl border border-dashed border-ocean-surface/50 p-6 text-center">
             <HelpCircle className="w-8 h-8 text-wano-cream/30 mb-3" />
             <p className="text-xs text-wano-cream/50 leading-relaxed max-w-[240px]">
-              No fields added yet. Add your first question field using the button
-              below.
+              No fields added yet. Add your first question field using the button below.
             </p>
           </div>
         )}

@@ -152,13 +152,22 @@ export function FormWorkspaceHeader({
                     </span>
                   </SelectTrigger>
                   <SelectContent className="glass-panel border-ocean-surface text-wano-cream min-w-[150px] shadow-2xl">
-                    <SelectItem value="draft" className="text-xs hover:bg-ocean-surface/60 cursor-pointer">
+                    <SelectItem
+                      value="draft"
+                      className="text-xs hover:bg-ocean-surface/60 cursor-pointer"
+                    >
                       Draft (Parchment Locked)
                     </SelectItem>
-                    <SelectItem value="published" className="text-xs hover:bg-ocean-surface/60 cursor-pointer">
+                    <SelectItem
+                      value="published"
+                      className="text-xs hover:bg-ocean-surface/60 cursor-pointer"
+                    >
                       Published (Setting Sail)
                     </SelectItem>
-                    <SelectItem value="unpublished" className="text-xs hover:bg-ocean-surface/60 cursor-pointer">
+                    <SelectItem
+                      value="unpublished"
+                      className="text-xs hover:bg-ocean-surface/60 cursor-pointer"
+                    >
                       Unpublished (Anchored)
                     </SelectItem>
                   </SelectContent>
@@ -291,13 +300,16 @@ export function FormWorkspaceHeader({
                     🌊 Voyage Active: Island is Live (Published Mode)
                   </h4>
                   <p className="text-[11px] text-wano-cream/60 leading-relaxed mt-1">
-                    Your form is actively taking submissions! You can unpublish it at any time to halt new submissions by selecting <span className="text-wano-crimson font-semibold">Unpublished</span> in the header badge dropdown.
+                    Your form is actively taking submissions! You can unpublish it at any time to
+                    halt new submissions by selecting{" "}
+                    <span className="text-wano-crimson font-semibold">Unpublished</span> in the
+                    header badge dropdown.
                   </p>
                 </div>
               </div>
 
               <div className="shrink-0 self-end sm:self-auto">
-                <Button 
+                <Button
                   onClick={handleShare}
                   className="bg-fruit-glow/10 hover:bg-fruit-glow/20 border border-fruit-glow/30 text-fruit-glow text-[10px] px-3.5 py-1.5 h-auto font-bold rounded-lg flex items-center gap-1.5 transition-all duration-300"
                 >
@@ -325,13 +337,15 @@ export function FormWorkspaceHeader({
                     ⚓ Island is Anchored (Unpublished Mode)
                   </h4>
                   <p className="text-[11px] text-wano-cream/60 leading-relaxed mt-1">
-                    This form is closed to submissions. Existing responses are safely kept. You can republish it at any time by changing the status to <span className="text-fruit-glow font-semibold">Published</span>.
+                    This form is closed to submissions. Existing responses are safely kept. You can
+                    republish it at any time by changing the status to{" "}
+                    <span className="text-fruit-glow font-semibold">Published</span>.
                   </p>
                 </div>
               </div>
 
               <div className="shrink-0 self-end sm:self-auto">
-                <Button 
+                <Button
                   onClick={async () => {
                     try {
                       await updateStatusMutation.mutateAsync({

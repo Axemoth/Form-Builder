@@ -72,8 +72,8 @@ export default function LandingPage() {
               Powerful <span className="text-gradient-gold">Features</span>
             </h2>
             <p className="text-wano-cream/60 text-lg max-w-2xl mx-auto">
-              Equip your surveys and forms with everything you need. Customize every aspect of
-              the experience.
+              Equip your surveys and forms with everything you need. Customize every aspect of the
+              experience.
             </p>
             <div
               className="w-24 h-1.5 bg-wano-crimson mx-auto mt-4 rounded-full"
@@ -125,8 +125,7 @@ export default function LandingPage() {
             Ready to Build Your <span className="text-gradient-gold">First Form</span>?
           </h2>
           <p className="text-wano-cream/80 text-lg max-w-xl">
-            Create your free account today and discover how easy and powerful building forms
-            can be.
+            Create your free account today and discover how easy and powerful building forms can be.
           </p>
           <Link href="/login" className="mt-4">
             <Button className="py-7 px-8 bg-wano-gold hover:bg-wano-gold-light text-ocean-deep text-base font-extrabold rounded-xl shadow-[0_4px_25px_rgba(201,168,76,0.4)] hover:scale-[1.03] transition-all duration-300 flex items-center gap-2">

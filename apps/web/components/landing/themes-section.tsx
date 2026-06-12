@@ -328,7 +328,7 @@ export function ThemesSection() {
                                     "text-lg transition-all duration-300 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] inline-block",
                                     isLit
                                       ? "opacity-100 filter drop-shadow-[0_0_8px_rgba(255,255,255,0.85)] scale-110"
-                                      : "opacity-20 hover:scale-115"
+                                      : "opacity-20 hover:scale-115",
                                   )}
                                 >
                                   ☠️

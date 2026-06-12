@@ -34,7 +34,9 @@ export const adminRouter = router({
       // Aggregate total counts
       const [usersCount] = await db.select({ count: sql<number>`count(*)::int` }).from(users);
       const [formsCount] = await db.select({ count: sql<number>`count(*)::int` }).from(forms);
-      const [responsesCount] = await db.select({ count: sql<number>`count(*)::int` }).from(responses);
+      const [responsesCount] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(responses);
       const [viewsCount] = await db.select({ count: sql<number>`count(*)::int` }).from(formViews);
 
       const totalUsers = usersCount?.count || 0;
@@ -58,7 +60,9 @@ export const adminRouter = router({
         .limit(30);
 
       const dailyTrends = trends.map((t) => ({
-        date: t.date ? t.date.toISOString().split("T")[0]! : new Date().toISOString().split("T")[0]!,
+        date: t.date
+          ? t.date.toISOString().split("T")[0]!
+          : new Date().toISOString().split("T")[0]!,
         views: t.views || 0,
         submissions: t.submissions || 0,
       }));
@@ -130,7 +134,7 @@ export const adminRouter = router({
           avatar: users.avatar,
           role: users.role,
           createdAt: users.createdAt,
-          formCount: sql<number>`(select count(*)::int from ${forms} where ${forms.userId} = ${users.id})`,
+          formCount: sql<number>`(select count(*)::int from ${forms} where ${eq(forms.userId, users.id)})`,
         })
         .from(users)
         .where(queryFilter)
@@ -244,7 +248,7 @@ export const adminRouter = router({
           visibility: forms.visibility,
           createdAt: forms.createdAt,
           isArchived: forms.isArchived,
-          responseCount: sql<number>`(select count(*)::int from ${responses} where ${responses.formId} = ${forms.id})`,
+          responseCount: sql<number>`(select count(*)::int from ${responses} where ${eq(responses.formId, forms.id)})`,
           ownerName: users.name,
           ownerEmail: users.email,
         })
@@ -310,7 +314,10 @@ export const adminRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Charted island not found." });
       }
 
-      await db.update(forms).set({ isArchived: input.isArchived }).where(eq(forms.id, input.formId));
+      await db
+        .update(forms)
+        .set({ isArchived: input.isArchived })
+        .where(eq(forms.id, input.formId));
       return {
         success: true,
         message: input.isArchived ? "Form successfully archived." : "Form successfully restored.",

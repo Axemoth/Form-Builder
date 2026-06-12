@@ -89,7 +89,6 @@ export function Navbar({ onCreateFormClick }: NavbarProps) {
 
       {/* Center/Right side: Actions & User Menu */}
       <div className="flex items-center gap-4">
-
         {/* Global Create Form CTA */}
         {onCreateFormClick && (
           <Button
@@ -118,7 +117,8 @@ export function Navbar({ onCreateFormClick }: NavbarProps) {
                 🧭 Compass Guide: How AxeForm Works
               </DialogTitle>
               <DialogDescription className="text-xs text-wano-cream/55 mt-1 leading-relaxed">
-                Learn how to chart, publish, and collect responses on your Grand Line survey voyages.
+                Learn how to chart, publish, and collect responses on your Grand Line survey
+                voyages.
               </DialogDescription>
             </DialogHeader>
 
@@ -128,7 +128,9 @@ export function Navbar({ onCreateFormClick }: NavbarProps) {
                   📋 1. What are Forms?
                 </h4>
                 <p className="text-wano-cream/70 text-[11px] leading-relaxed pl-5">
-                  Forms are your customized surveys. You build them by adding different fields (questions) like text boxes, check lists, emails, or star ratings to collect information from other pirates.
+                  Forms are your customized surveys. You build them by adding different fields
+                  (questions) like text boxes, check lists, emails, or star ratings to collect
+                  information from other pirates.
                 </p>
               </div>
 
@@ -142,7 +144,8 @@ export function Navbar({ onCreateFormClick }: NavbarProps) {
                       Published (Setting Sail)
                     </span>
                     <p className="text-[10px] text-wano-cream/65 mt-0.5 leading-relaxed">
-                      Your form is fully live! Anyone with the direct survey link can open it and submit responses.
+                      Your form is fully live! Anyone with the direct survey link can open it and
+                      submit responses.
                     </p>
                   </div>
 
@@ -151,7 +154,8 @@ export function Navbar({ onCreateFormClick }: NavbarProps) {
                       Unpublished (Anchored)
                     </span>
                     <p className="text-[10px] text-wano-cream/65 mt-0.5 leading-relaxed">
-                      Your form is temporarily closed. The direct link is offline, and new responses are blocked, but all previously submitted responses are safely preserved.
+                      Your form is temporarily closed. The direct link is offline, and new responses
+                      are blocked, but all previously submitted responses are safely preserved.
                     </p>
                   </div>
 
@@ -160,7 +164,8 @@ export function Navbar({ onCreateFormClick }: NavbarProps) {
                       Draft (Parchment Locked)
                     </span>
                     <p className="text-[10px] text-wano-cream/65 mt-0.5 leading-relaxed">
-                      A private copy for you to safely build and edit questions. It is hidden from the public until you decide to publish it.
+                      A private copy for you to safely build and edit questions. It is hidden from
+                      the public until you decide to publish it.
                     </p>
                   </div>
                 </div>
@@ -172,20 +177,31 @@ export function Navbar({ onCreateFormClick }: NavbarProps) {
                 </h4>
                 <div className="text-wano-cream/70 text-[11px] leading-relaxed pl-5 space-y-1.5">
                   <p>
-                    Make your forms truly premium under the <strong className="text-wano-gold">Ship Settings</strong> tab:
+                    Make your forms truly premium under the{" "}
+                    <strong className="text-wano-gold">Ship Settings</strong> tab:
                   </p>
                   <ul className="list-disc pl-4 space-y-1.5 text-[10.5px]">
                     <li>
-                      <strong className="text-wano-cream/90">Aesthetic Themes:</strong> Style your forms with custom layouts like sakura blossom calligraphies (<strong>Wano country</strong>), sci-fi data hud layers (<strong>Stark Tech</strong>), or tactical bat-signal spotlights (<strong>Gotham Knight</strong>).
+                      <strong className="text-wano-cream/90">Aesthetic Themes:</strong> Style your
+                      forms with custom layouts like sakura blossom calligraphies (
+                      <strong>Wano country</strong>), sci-fi data hud layers (
+                      <strong>Stark Tech</strong>), or tactical bat-signal spotlights (
+                      <strong>Gotham Knight</strong>).
                     </li>
                     <li>
-                      <strong className="text-wano-cream/90">Haki Access Shields:</strong> Set up secure email verifications, password gates, or restrict repeated submissions to limit access.
+                      <strong className="text-wano-cream/90">Haki Access Shields:</strong> Set up
+                      secure email verifications, password gates, or restrict repeated submissions
+                      to limit access.
                     </li>
                     <li>
-                      <strong className="text-wano-cream/90">Limits & Expirations:</strong> Select expiration date caps or restrict the maximum response limit cargo before the form anchors.
+                      <strong className="text-wano-cream/90">Limits & Expirations:</strong> Select
+                      expiration date caps or restrict the maximum response limit cargo before the
+                      form anchors.
                     </li>
                     <li>
-                      <strong className="text-wano-cream/90">Messenger Birds:</strong> Enable email scrolls to dispatch instant notifications to your inbox when responses are logged.
+                      <strong className="text-wano-cream/90">Messenger Birds:</strong> Enable email
+                      scrolls to dispatch instant notifications to your inbox when responses are
+                      logged.
                     </li>
                   </ul>
                 </div>
@@ -196,7 +212,13 @@ export function Navbar({ onCreateFormClick }: NavbarProps) {
                   🏆 4. What are Responses?
                 </h4>
                 <p className="text-wano-cream/70 text-[11px] leading-relaxed pl-5">
-                  Every time a respondent fills out and submits your live form, it is recorded as a <strong className="text-fruit-glow">Response</strong> (your captured treasure). You can view the full responses log in the <strong className="text-wano-gold">"Treasures Collected"</strong> tab, or see beautiful visual trend charts under the <strong className="text-wano-sakura">"Sea Charts" (Analytics)</strong> tab of your form workspace cabin.
+                  Every time a respondent fills out and submits your live form, it is recorded as a{" "}
+                  <strong className="text-fruit-glow">Response</strong> (your captured treasure).
+                  You can view the full responses log in the{" "}
+                  <strong className="text-wano-gold">"Treasures Collected"</strong> tab, or see
+                  beautiful visual trend charts under the{" "}
+                  <strong className="text-wano-sakura">"Sea Charts" (Analytics)</strong> tab of your
+                  form workspace cabin.
                 </p>
               </div>
             </div>

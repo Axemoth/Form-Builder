@@ -70,7 +70,7 @@ export default function AdminPage() {
     {
       enabled: isAuthorized,
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const formsQuery = trpc.admin.getForms.useQuery(
@@ -82,7 +82,7 @@ export default function AdminPage() {
     {
       enabled: isAuthorized,
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   // Mutations
@@ -135,7 +135,11 @@ export default function AdminPage() {
   };
 
   const handleUpdateFormStatus = (formId: string, currentStatus: string) => {
-    const statuses: ("draft" | "published" | "unpublished")[] = ["draft", "published", "unpublished"];
+    const statuses: ("draft" | "published" | "unpublished")[] = [
+      "draft",
+      "published",
+      "unpublished",
+    ];
     const currentIdx = statuses.indexOf(currentStatus as any);
     const nextStatus = statuses[(currentIdx + 1) % statuses.length]!;
     updateStatusMutation.mutate({ formId, status: nextStatus });
@@ -146,7 +150,11 @@ export default function AdminPage() {
   };
 
   const handleDeleteForm = (formId: string, title: string) => {
-    if (confirm(`Are you absolutely sure you want to permanently delete the form "${title}"? This action is irreversible.`)) {
+    if (
+      confirm(
+        `Are you absolutely sure you want to permanently delete the form "${title}"? This action is irreversible.`,
+      )
+    ) {
       deleteFormMutation.mutate({ formId });
     }
   };
@@ -190,25 +198,25 @@ export default function AdminPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
         <StatsCard
           title="Total Users"
-          value={statsQuery.isLoading ? "..." : globalStats?.totalUsers ?? 0}
+          value={statsQuery.isLoading ? "..." : (globalStats?.totalUsers ?? 0)}
           icon={Users}
           description="Registered Captains"
         />
         <StatsCard
           title="Total Forms"
-          value={statsQuery.isLoading ? "..." : globalStats?.totalForms ?? 0}
+          value={statsQuery.isLoading ? "..." : (globalStats?.totalForms ?? 0)}
           icon={Map}
           description="Created Forms"
         />
         <StatsCard
           title="Total Submissions"
-          value={statsQuery.isLoading ? "..." : globalStats?.totalSubmissions ?? 0}
+          value={statsQuery.isLoading ? "..." : (globalStats?.totalSubmissions ?? 0)}
           icon={Anchor}
           description="Collected Responses"
         />
         <StatsCard
           title="Total Views"
-          value={statsQuery.isLoading ? "..." : globalStats?.totalViews ?? 0}
+          value={statsQuery.isLoading ? "..." : (globalStats?.totalViews ?? 0)}
           icon={Compass}
           description="Aggregated Page Views"
         />
@@ -226,7 +234,9 @@ export default function AdminPage() {
           onClick={() => setActiveTab("overview")}
           className={cn(
             "pb-3 text-sm font-bold tracking-wide relative transition-colors duration-300 font-heading",
-            activeTab === "overview" ? "text-wano-gold" : "text-wano-cream/40 hover:text-wano-cream"
+            activeTab === "overview"
+              ? "text-wano-gold"
+              : "text-wano-cream/40 hover:text-wano-cream",
           )}
         >
           System Overview
@@ -238,7 +248,7 @@ export default function AdminPage() {
           onClick={() => setActiveTab("users")}
           className={cn(
             "pb-3 text-sm font-bold tracking-wide relative transition-colors duration-300 font-heading",
-            activeTab === "users" ? "text-wano-gold" : "text-wano-cream/40 hover:text-wano-cream"
+            activeTab === "users" ? "text-wano-gold" : "text-wano-cream/40 hover:text-wano-cream",
           )}
         >
           User Management ({usersQuery.data?.total ?? "..."})
@@ -250,7 +260,7 @@ export default function AdminPage() {
           onClick={() => setActiveTab("forms")}
           className={cn(
             "pb-3 text-sm font-bold tracking-wide relative transition-colors duration-300 font-heading",
-            activeTab === "forms" ? "text-wano-gold" : "text-wano-cream/40 hover:text-wano-cream"
+            activeTab === "forms" ? "text-wano-gold" : "text-wano-cream/40 hover:text-wano-cream",
           )}
         >
           Form Management ({formsQuery.data?.total ?? "..."})
@@ -270,19 +280,29 @@ export default function AdminPage() {
               Administrative Guidelines
             </h3>
             <p className="text-xs text-wano-cream/60 leading-relaxed mb-4">
-              Welcome back to the **AxeForm Control Room**. You are currently managing a database containing <strong>{globalStats?.totalUsers ?? "..."} Registered Users</strong> and their respective form endpoints.
+              Welcome back to the **AxeForm Control Room**. You are currently managing a database
+              containing <strong>{globalStats?.totalUsers ?? "..."} Registered Users</strong> and
+              their respective form endpoints.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
               <div className="p-4 rounded-2xl bg-ocean-deep/40 border border-ocean-surface/30 space-y-2">
-                <span className="text-[10px] font-heading font-bold uppercase text-wano-gold/80 tracking-wide">User Controls</span>
+                <span className="text-[10px] font-heading font-bold uppercase text-wano-gold/80 tracking-wide">
+                  User Controls
+                </span>
                 <p className="text-xs text-wano-cream/50 leading-relaxed">
-                  Utilize the <strong>User Management</strong> roster to look up registered credentials, promote standard members to administrative status, or modify permissions.
+                  Utilize the <strong>User Management</strong> roster to look up registered
+                  credentials, promote standard members to administrative status, or modify
+                  permissions.
                 </p>
               </div>
               <div className="p-4 rounded-2xl bg-ocean-deep/40 border border-ocean-surface/30 space-y-2">
-                <span className="text-[10px] font-heading font-bold uppercase text-wano-gold/80 tracking-wide">Form Audits</span>
+                <span className="text-[10px] font-heading font-bold uppercase text-wano-gold/80 tracking-wide">
+                  Form Audits
+                </span>
                 <p className="text-xs text-wano-cream/50 leading-relaxed">
-                  Monitor dynamic form configurations in the <strong>Form Management</strong> area. Check active responses, toggle active states (Draft / Published), or delete prohibited layouts instantly.
+                  Monitor dynamic form configurations in the <strong>Form Management</strong> area.
+                  Check active responses, toggle active states (Draft / Published), or delete
+                  prohibited layouts instantly.
                 </p>
               </div>
             </div>
@@ -302,16 +322,29 @@ export default function AdminPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {globalStats.dailyTrends.slice(-4).map((trend, i) => (
-                    <div key={i} className="bg-ocean-deep/60 border border-ocean-surface/30 rounded-xl p-3 flex flex-col justify-between hover:border-wano-gold/20 transition-all">
+                    <div
+                      key={i}
+                      className="bg-ocean-deep/60 border border-ocean-surface/30 rounded-xl p-3 flex flex-col justify-between hover:border-wano-gold/20 transition-all"
+                    >
                       <span className="text-[10px] font-mono text-wano-cream/40">{trend.date}</span>
                       <div className="flex items-end justify-between mt-2">
-                        <span className="text-xs font-semibold text-wano-cream">Views: <strong className="text-wano-cream font-bold">{trend.views}</strong></span>
-                        <span className="text-xs font-semibold text-wano-sakura">Replies: <strong className="text-wano-sakura font-bold">{trend.submissions}</strong></span>
+                        <span className="text-xs font-semibold text-wano-cream">
+                          Views:{" "}
+                          <strong className="text-wano-cream font-bold">{trend.views}</strong>
+                        </span>
+                        <span className="text-xs font-semibold text-wano-sakura">
+                          Replies:{" "}
+                          <strong className="text-wano-sakura font-bold">
+                            {trend.submissions}
+                          </strong>
+                        </span>
                       </div>
                       <div className="h-1 bg-ocean-surface rounded-full overflow-hidden mt-2">
                         <div
                           className="h-full bg-gradient-to-r from-wano-sakura to-wano-gold"
-                          style={{ width: `${trend.views > 0 ? Math.min(100, (trend.submissions / trend.views) * 100) : 0}%` }}
+                          style={{
+                            width: `${trend.views > 0 ? Math.min(100, (trend.submissions / trend.views) * 100) : 0}%`,
+                          }}
                         />
                       </div>
                     </div>
@@ -319,7 +352,9 @@ export default function AdminPage() {
                 </div>
               </div>
             ) : (
-              <p className="text-xs text-wano-cream/30 text-center py-10 font-mono">No historical coordinates registered.</p>
+              <p className="text-xs text-wano-cream/30 text-center py-10 font-mono">
+                No historical coordinates registered.
+              </p>
             )}
           </div>
         </div>
@@ -343,7 +378,8 @@ export default function AdminPage() {
               />
             </div>
             <div className="text-xs text-wano-cream/40 font-mono">
-              Displaying {usersQuery.data?.users.length ?? 0} of {usersQuery.data?.total ?? 0} total users.
+              Displaying {usersQuery.data?.users.length ?? 0} of {usersQuery.data?.total ?? 0} total
+              users.
             </div>
           </div>
 
@@ -372,7 +408,11 @@ export default function AdminPage() {
                       <td className="px-6 py-4 flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-ocean-surface border border-wano-gold/20 flex items-center justify-center text-wano-gold overflow-hidden">
                           {user.avatar ? (
-                            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                            <img
+                              src={user.avatar}
+                              alt={user.name}
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <span>⚓</span>
                           )}
@@ -386,13 +426,15 @@ export default function AdminPage() {
                             "px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider",
                             user.role === "admin"
                               ? "bg-wano-gold/15 text-wano-gold border border-wano-gold/20"
-                              : "bg-ocean-surface/60 text-wano-cream/60 border border-ocean-surface"
+                              : "bg-ocean-surface/60 text-wano-cream/60 border border-ocean-surface",
                           )}
                         >
                           {user.role}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-center font-bold font-mono text-wano-gold">{user.formCount}</td>
+                      <td className="px-6 py-4 text-center font-bold font-mono text-wano-gold">
+                        {user.formCount}
+                      </td>
                       <td className="px-6 py-4 font-mono text-wano-cream/50">
                         {new Date(user.createdAt).toLocaleDateString()}
                       </td>
@@ -403,7 +445,7 @@ export default function AdminPage() {
                             "rounded-lg px-2.5 py-1 font-heading text-[10px] font-bold uppercase flex items-center gap-1 inline-flex transition-all",
                             user.role === "admin"
                               ? "bg-wano-crimson/10 border border-wano-crimson/30 text-wano-crimson hover:bg-wano-crimson/20"
-                              : "bg-wano-gold/10 border border-wano-gold/30 text-wano-gold hover:bg-wano-gold/20"
+                              : "bg-wano-gold/10 border border-wano-gold/30 text-wano-gold hover:bg-wano-gold/20",
                           )}
                         >
                           {user.role === "admin" ? (
@@ -426,7 +468,9 @@ export default function AdminPage() {
             </div>
           ) : (
             <div className="text-center py-20 bg-ocean-mid/10 rounded-2xl border-2 border-dashed border-ocean-surface/30">
-              <p className="text-xs text-wano-cream/40 font-mono">No users found matching search coordinates.</p>
+              <p className="text-xs text-wano-cream/40 font-mono">
+                No users found matching search coordinates.
+              </p>
             </div>
           )}
 
@@ -473,7 +517,8 @@ export default function AdminPage() {
               />
             </div>
             <div className="text-xs text-wano-cream/40 font-mono">
-              Displaying {formsQuery.data?.forms.length ?? 0} of {formsQuery.data?.total ?? 0} total forms.
+              Displaying {formsQuery.data?.forms.length ?? 0} of {formsQuery.data?.total ?? 0} total
+              forms.
             </div>
           </div>
 
@@ -502,13 +547,17 @@ export default function AdminPage() {
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
                           <span className="font-bold text-wano-cream text-xs">{form.title}</span>
-                          <span className="text-[10px] font-mono text-wano-cream/35">{form.slug}</span>
+                          <span className="text-[10px] font-mono text-wano-cream/35">
+                            {form.slug}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
                           <span className="font-bold text-wano-cream/70">{form.ownerName}</span>
-                          <span className="text-[10px] font-mono text-wano-cream/35">{form.ownerEmail}</span>
+                          <span className="text-[10px] font-mono text-wano-cream/35">
+                            {form.ownerEmail}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -521,7 +570,7 @@ export default function AdminPage() {
                                 ? "bg-fruit-glow/15 border-fruit-glow/30 text-fruit-glow"
                                 : form.status === "draft"
                                   ? "bg-wano-gold/15 border-wano-gold/30 text-wano-gold"
-                                  : "bg-ocean-surface border-ocean-surface/80 text-wano-cream/40"
+                                  : "bg-ocean-surface border-ocean-surface/80 text-wano-cream/40",
                             )}
                           >
                             {form.status}
@@ -533,7 +582,9 @@ export default function AdminPage() {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-mono font-bold text-wano-gold">{form.responseCount}</td>
+                      <td className="px-6 py-4 font-mono font-bold text-wano-gold">
+                        {form.responseCount}
+                      </td>
                       <td className="px-6 py-4 font-mono text-wano-cream/50">
                         {new Date(form.createdAt).toLocaleDateString()}
                       </td>
@@ -562,7 +613,9 @@ export default function AdminPage() {
             </div>
           ) : (
             <div className="text-center py-20 bg-ocean-mid/10 rounded-2xl border-2 border-dashed border-ocean-surface/30">
-              <p className="text-xs text-wano-cream/40 font-mono">No forms found matching search parameters.</p>
+              <p className="text-xs text-wano-cream/40 font-mono">
+                No forms found matching search parameters.
+              </p>
             </div>
           )}
 
