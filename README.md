@@ -10,7 +10,7 @@ You can interact with the live deployed production site immediately using the pr
 
 > [!IMPORTANT]
 > **Production URL**: [https://axeform.axemoth.com](https://axeform.axemoth.com)
-> * **Email Address**: `chaiforms@gmail.com`
+> * **Email Address**: `Chaiforms@gmail.com`
 > * **Default Password**: `password123`
 
 ---
