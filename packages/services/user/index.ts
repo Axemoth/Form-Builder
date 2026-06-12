@@ -68,7 +68,7 @@ class UserService {
     let [user] = await db.select().from(usersTable).where(eq(usersTable.googleId, profile.sub));
 
     if (!user) {
-      const normalizedGoogleEmail = profile.email.toLowerCase();
+      const normalizedGoogleEmail = profile.email.trim().toLowerCase();
       // If not found, try to find by email
       const [existingUserByEmail] = await db
         .select()
@@ -140,7 +140,7 @@ class UserService {
   }
 
   public async signupWithCredentials(name: string, email: string, password: string) {
-    const normalizedEmail = email.toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
     // Check if user already exists
     const [existingUser] = await db
       .select()
@@ -198,7 +198,7 @@ class UserService {
   }
 
   public async loginWithCredentials(email: string, password: string) {
-    const normalizedEmail = email.toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
     // Find user by email
     const [user] = await db.select().from(usersTable).where(eq(usersTable.email, normalizedEmail));
 

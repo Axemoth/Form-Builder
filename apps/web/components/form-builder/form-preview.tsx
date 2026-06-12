@@ -211,7 +211,7 @@ export function FormPreview({
                     onChange={(e) =>
                       setMockValues((prev) => ({
                         ...prev,
-                        [fieldId]: e.target.value.toLowerCase(),
+                        [fieldId]: e.target.value,
                       }))
                     }
                   />

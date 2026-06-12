@@ -211,7 +211,7 @@ export default function LoginPage() {
                   required
                   disabled={isPending}
                   value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value.toLowerCase())}
+                  onChange={(e) => setLoginEmail(e.target.value)}
                   placeholder="luffy@thousandsunny.com"
                   className="bg-ocean-deep/60 border-2 border-ocean-surface text-wano-cream pl-9 text-xs h-11 focus-visible:ring-0 focus:border-wano-gold/60 rounded-xl w-full"
                 />
@@ -300,7 +300,7 @@ export default function LoginPage() {
                   required
                   disabled={isPending}
                   value={signupEmail}
-                  onChange={(e) => setSignupEmail(e.target.value.toLowerCase())}
+                  onChange={(e) => setSignupEmail(e.target.value)}
                   placeholder="newbie@grandline.com"
                   className="bg-ocean-deep/60 border-2 border-ocean-surface text-wano-cream pl-9 text-xs h-11 focus-visible:ring-0 focus:border-wano-gold/60 rounded-xl w-full"
                 />

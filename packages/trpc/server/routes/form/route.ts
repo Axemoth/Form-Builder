@@ -956,7 +956,13 @@ export const formRouter = router({
       z.object({
         formId: z.string().uuid().describe("Form UUID to submit to"),
         password: z.string().optional().describe("Password for password-protected forms"),
-        respondentEmail: z.string().email().optional().describe("Respondent email"),
+        respondentEmail: z
+          .string()
+          .trim()
+          .email()
+          .transform((email) => email.toLowerCase())
+          .optional()
+          .describe("Respondent email"),
         emailMeCopy: z
           .boolean()
           .optional()
@@ -1230,10 +1236,14 @@ export const formRouter = router({
           }
 
           case "email": {
-            if (typeof value !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            const normalizedEmail = typeof value === "string" ? value.trim().toLowerCase() : value;
+            if (
+              typeof normalizedEmail !== "string" ||
+              !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
+            ) {
               validationErrors.push(`Field "${field.label}" must be a valid email address.`);
             } else {
-              validatedAnswers.push({ fieldId: field.id, value });
+              validatedAnswers.push({ fieldId: field.id, value: normalizedEmail });
             }
             break;
           }

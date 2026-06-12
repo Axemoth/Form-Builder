@@ -378,7 +378,7 @@ export function FormRenderer({ form, password }: FormRendererProps) {
             themeName={themeName}
             error={errors[field.id]?.message as string}
             value={val || ""}
-            onChange={(e) => onChange(e.target.value.toLowerCase())}
+            onChange={onChange}
             onBlur={onBlur}
           />
         );
@@ -554,12 +554,17 @@ export function FormRenderer({ form, password }: FormRendererProps) {
       });
 
       const completionTime = Math.round((Date.now() - completionTimeStart) / 1000);
+      const respondentEmailValue = (values as { respondentEmail?: unknown }).respondentEmail;
+      const emailMeCopyValue = (values as { emailMeCopy?: unknown }).emailMeCopy;
 
       const result = await submitMutation.mutateAsync({
         formId: form.id,
         password,
-        respondentEmail: (values as any).respondentEmail || undefined,
-        emailMeCopy: !!(values as any).emailMeCopy,
+        respondentEmail:
+          typeof respondentEmailValue === "string" && respondentEmailValue
+            ? respondentEmailValue.toLowerCase()
+            : undefined,
+        emailMeCopy: !!emailMeCopyValue,
         answers,
         metadata: {
           ipHash: "respondent-ip-hash",
@@ -1009,11 +1014,7 @@ export function FormRenderer({ form, password }: FormRendererProps) {
                         ? "e.g. tony@starkindustries.com"
                         : "e.g. luffy@thousandsunny.com"
                   }
-                  {...register("respondentEmail", {
-                    onChange: (e) => {
-                      e.target.value = e.target.value.toLowerCase();
-                    },
-                  })}
+                  {...register("respondentEmail")}
                 />
               </div>
             ) : (
@@ -1142,11 +1143,7 @@ export function FormRenderer({ form, password }: FormRendererProps) {
                       ? "e.g. tony@starkindustries.com"
                       : "e.g. luffy@thousandsunny.com"
                 }
-                {...register("respondentEmail", {
-                  onChange: (e) => {
-                    e.target.value = e.target.value.toLowerCase();
-                  },
-                })}
+                {...register("respondentEmail")}
               />
             </div>
           )}
